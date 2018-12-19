@@ -24,8 +24,6 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenStoreOpenReturnsFailure)
     auto bstore = std::make_unique<MockBinaryStore>();
 
     EXPECT_CALL(*bstore, getBaseBlobId()).WillRepeatedly(Return(testBaseId));
-    EXPECT_CALL(*bstore, canHandleBlob(StartsWith(testBaseId)))
-        .WillRepeatedly(Return(true));
     EXPECT_CALL(*bstore, openOrCreateBlob(_, flags)).WillOnce(Return(false));
 
     handler.addNewBinaryStore(std::move(bstore));
@@ -41,8 +39,6 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, SucceedWhenStoreOpenReturnsTrue)
     auto bstore = std::make_unique<MockBinaryStore>();
 
     EXPECT_CALL(*bstore, getBaseBlobId()).WillRepeatedly(Return(testBaseId));
-    EXPECT_CALL(*bstore, canHandleBlob(StartsWith(testBaseId)))
-        .WillRepeatedly(Return(true));
     EXPECT_CALL(*bstore, openOrCreateBlob(_, flags)).WillOnce(Return(true));
 
     handler.addNewBinaryStore(std::move(bstore));
