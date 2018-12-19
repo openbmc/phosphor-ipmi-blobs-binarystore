@@ -16,7 +16,7 @@ TESTS = $(check_PROGRAMS)
 
 handler_unittest_SOURCES = handler_unittest.cpp
 handler_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
-	$(top_builddir)/handler.o
+	$(top_builddir)/handler.o $(top_builddir)/binarystore.o
 handler_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)
 
 handler_open_unittest_SOURCES = handler_open_unittest.cpp

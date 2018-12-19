@@ -11,7 +11,6 @@ class MockBinaryStore : public BinaryStoreInterface
 {
   public:
     MOCK_CONST_METHOD0(getBaseBlobId, std::string());
-    MOCK_CONST_METHOD1(canHandleBlob, bool(const std::string&));
     MOCK_CONST_METHOD0(getBlobIds, std::vector<std::string>());
     MOCK_METHOD2(openOrCreateBlob, bool(const std::string&, uint16_t));
     MOCK_METHOD1(deleteBlob, bool(const std::string&));
