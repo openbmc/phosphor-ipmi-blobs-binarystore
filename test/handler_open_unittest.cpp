@@ -11,10 +11,35 @@ using namespace binstore;
 namespace blobs
 {
 
+class BinaryStoreBlobHandlerOpenTest : public BinaryStoreBlobHandlerTest
+{
+  protected:
+    BinaryStoreBlobHandlerOpenTest()
+    {
+        AddDefaultBinaryStore(openTestBaseId);
+    }
+    static inline std::string openTestBaseId = "/test/"s;
+    static inline std::string openTestBlobId = "/test/blob0"s;
+    static inline std::string openTestInvalidBlobId = "/invalid/blob0"s;
+};
+
 TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenCannotHandleId)
 {
     uint16_t flags = OpenFlags::read, sessionId = 0;
-    EXPECT_FALSE(handler.open(sessionId, flags, "/invalid/blob"s));
+    EXPECT_FALSE(handler.open(sessionId, flags, openTestInvalidBlobId));
+}
+
+TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenNoReadFlag)
+{
+    uint16_t flags = OpenFlags::write, sessionId = 0;
+    EXPECT_FALSE(handler.open(sessionId, flags, openTestBlobId));
+}
+
+TEST_F(BinaryStoreBlobHandlerOpenTest, SucceedForValidBlobId)
+{
+    uint16_t flags = OpenFlags::read, sessionId = 0;
+    EXPECT_TRUE(handler.open(sessionId, flags, openTestBlobId));
+    EXPECT_TRUE(handler.close(sessionId));
 }
 
 TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenStoreOpenReturnsFailureMock)

@@ -12,6 +12,7 @@ AM_LDFLAGS = \
 # Run all 'check' test programs
 check_PROGRAMS = \
 	handler_open_unittest \
+	handler_readwrite_unittest \
 	handler_unittest
 TESTS = $(check_PROGRAMS)
 
@@ -30,3 +31,11 @@ handler_open_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
 	$(top_builddir)/libbinarystore_la-binaryblob.pb.o \
 	-lprotobuf
 handler_open_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)
+
+handler_readwrite_unittest_SOURCES = handler_readwrite_unittest.cpp
+handler_readwrite_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
+	$(top_builddir)/handler.o \
+	$(top_builddir)/binarystore.o \
+	$(top_builddir)/libbinarystore_la-binaryblob.pb.o \
+	-lprotobuf
+handler_readwrite_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)

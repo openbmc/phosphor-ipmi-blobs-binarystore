@@ -58,41 +58,27 @@ TEST_F(BinaryStoreBlobHandlerBasicTest, GetBlobIdEqualsConcatenationsOfIdsMock)
 TEST_F(BinaryStoreBlobHandlerBasicTest, GetBlobIdShowsBaseId)
 {
     EXPECT_THAT(handler.getBlobIds(), IsEmpty());
-
-    handler.addNewBinaryStore(
-        BinaryStore::createFromConfig("/foo/"s, "/fake/path"s, 0, 0));
-
-    // Verify getBlobId shows base id.
+    AddDefaultBinaryStore("/foo/"s);
     EXPECT_THAT(handler.getBlobIds(), ElementsAreArray({"/foo/"s}));
-
-    handler.addNewBinaryStore(
-        BinaryStore::createFromConfig("/bar/"s, "/fake/path"s, 0, 0));
-
+    AddDefaultBinaryStore("/bar/"s);
     EXPECT_THAT(handler.getBlobIds(),
                 UnorderedElementsAreArray({"/foo/"s, "/bar/"s}));
 }
 
-TEST_F(BinaryStoreBlobHandlerBasicTest, CanHandleBlobChecksNameInvalid)
+TEST_F(BinaryStoreBlobHandlerBasicTest, CanHandleBlobChecksPrefix)
 {
-    handler.addNewBinaryStore(
-        BinaryStore::createFromConfig("/test/"s, "/fake/path"s, 0, 0));
-
+    EXPECT_THAT(handler.getBlobIds(), IsEmpty());
+    AddDefaultBinaryStore("/test/"s);
     // Verify canHandleBlob checks and returns false on an invalid name.
+    EXPECT_FALSE(handler.canHandleBlob(""s));
     EXPECT_FALSE(handler.canHandleBlob("asdf"s));
     EXPECT_FALSE(handler.canHandleBlob("/"s));
     EXPECT_FALSE(handler.canHandleBlob("//"s));
     // Cannot handle the base id name
-    EXPECT_FALSE(handler.canHandleBlob("/test/"s));
     EXPECT_FALSE(handler.canHandleBlob("/test"s));
+    EXPECT_FALSE(handler.canHandleBlob("/test/"s));
     // Cannot handle nested name
     EXPECT_FALSE(handler.canHandleBlob("/test/this/blob"s));
-}
-
-TEST_F(BinaryStoreBlobHandlerBasicTest, CanHandleBlobChecksNameValid)
-{
-    handler.addNewBinaryStore(
-        BinaryStore::createFromConfig("/test/"s, "/fake/path"s, 0, 0));
-
     // Verify canHandleBlob can handle a valid blob under the path.
     EXPECT_TRUE(handler.canHandleBlob("/test/blob0"s));
     EXPECT_TRUE(handler.canHandleBlob("/test/test"s));
