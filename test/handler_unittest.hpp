@@ -3,6 +3,8 @@
 #include "binarystore_mock.hpp"
 #include "handler.hpp"
 
+#include "binaryblob.pb.h"
+
 #include <gtest/gtest.h>
 
 namespace blobs
