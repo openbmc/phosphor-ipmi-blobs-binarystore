@@ -64,3 +64,7 @@ Makefile
 *~
 .cscope/
 build/
+
+# protobuf generated files
+*.pb.h
+*.pb.cc

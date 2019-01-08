@@ -1,4 +1,5 @@
 AM_CPPFLAGS = -I$(top_srcdir)/ \
+	-I$(builddir)
 	$(GTEST_CFLAGS) \
 	$(GMOCK_CFLAGS)
 AM_CXXFLAGS = \
@@ -16,10 +17,16 @@ TESTS = $(check_PROGRAMS)
 
 handler_unittest_SOURCES = handler_unittest.cpp
 handler_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
-	$(top_builddir)/handler.o $(top_builddir)/binarystore.o
+	$(top_builddir)/handler.o \
+	$(top_builddir)/binarystore.o \
+	$(top_builddir)/libbinarystore_la-binaryblob.pb.o \
+	-lprotobuf
 handler_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)
 
 handler_open_unittest_SOURCES = handler_open_unittest.cpp
 handler_open_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
-	$(top_builddir)/handler.o
+	$(top_builddir)/handler.o \
+	$(top_builddir)/binarystore.o \
+	$(top_builddir)/libbinarystore_la-binaryblob.pb.o \
+	-lprotobuf
 handler_open_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)
