@@ -20,12 +20,56 @@ using std::uint8_t;
 namespace binstore
 {
 
+namespace internal
+{
+
+/* Helper methods to interconvert an uint64_t and bytes, LSB first.
+   Convert bytes to uint64. Input should be exactly 8 bytes. */
+uint64_t bytesToUint64(const std::string& bytes)
+{
+    if (bytes.size() != sizeof(uint64_t))
+    {
+        return 0;
+    }
+
+    return static_cast<uint64_t>(bytes[7]) << 56 |
+           static_cast<uint64_t>(bytes[6]) << 48 |
+           static_cast<uint64_t>(bytes[5]) << 40 |
+           static_cast<uint64_t>(bytes[4]) << 32 |
+           static_cast<uint64_t>(bytes[3]) << 24 |
+           static_cast<uint64_t>(bytes[2]) << 16 |
+           static_cast<uint64_t>(bytes[1]) << 8 |
+           static_cast<uint64_t>(bytes[0]);
+}
+
+/* Convert uint64 to bytes, LSB first. */
+std::string uint64ToBytes(uint64_t num)
+{
+    std::string result;
+    for (size_t i = 0; i < sizeof(uint64_t); ++i)
+    {
+        result += static_cast<char>(num & 0xff);
+        num >>= 8;
+    }
+    return result;
+}
+
+} // namespace internal
+
 std::unique_ptr<BinaryStoreInterface>
     BinaryStore::createFromConfig(const std::string& baseBlobId, SysFile* file,
                                   uint32_t maxSize)
 {
-    // TODO: implement sysFile parsing
-    return std::make_unique<BinaryStore>(baseBlobId, file, maxSize);
+    if (baseBlobId.empty() || !file)
+    {
+        return nullptr;
+    }
+
+    auto store = std::make_unique<BinaryStore>(baseBlobId, file, maxSize);
+
+    store->blob_.set_blob_base_id(store->baseBlobId_);
+
+    return std::move(store);
 }
 
 std::string BinaryStore::getBaseBlobId() const
@@ -60,6 +104,28 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     }
 
     writable_ = flags & blobs::OpenFlags::write;
+
+    // Load blob from sysfile if we know it might not match what we have.
+    // Note it will overwrite existing unsaved data per design.
+    if (commitState_ != CommitState::Clean)
+    {
+        try
+        {
+            // Parse length-prefixed format to protobuf
+            auto size =
+                internal::bytesToUint64(file_->readAsStr(0, sizeof(uint64_t)));
+            if (!blob_.ParseFromString(
+                    file_->readAsStr(sizeof(uint64_t), size)))
+            {
+                // Fail to parse the data, which might mean read failure or no
+                // preexsiting data.
+                // TODO: logging
+            }
+        }
+        catch (const std::exception& e)
+        {
+        }
+    }
 
     /* Iterate and find if there is an existing blob with this id.
      * blobsPtr points to a BinaryBlob container with STL-like semantics*/
@@ -143,13 +209,27 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 
 bool BinaryStore::commit()
 {
-    return false;
+    auto data = blob_.SerializeAsString();
+
+    try
+    {
+        file_->writeStr(internal::uint64ToBytes((uint64_t)data.size()), 0);
+        file_->writeStr(data, sizeof(uint64_t));
+    }
+    catch (const std::exception& e)
+    {
+        // TODO: logging
+    };
+
+    commitState_ = CommitState::Clean;
+    return true;
 }
 
 bool BinaryStore::close()
 {
     currentBlob_ = nullptr;
     writable_ = false;
+    commitState_ = CommitState::Dirty;
     return true;
 }
 
