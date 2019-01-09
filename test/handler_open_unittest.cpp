@@ -3,6 +3,7 @@
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StartsWith;
+using ::testing::UnorderedElementsAreArray;
 
 using namespace std::string_literals;
 using namespace binstore;
@@ -27,7 +28,7 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenCannotHandleId)
                               openTestInvalidBlobId));
 }
 
-TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenStoreOpenReturnsFailure)
+TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenStoreOpenReturnsFailureMock)
 {
     auto store = defaultMockStore(openTestBaseId);
 
@@ -40,7 +41,7 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, FailWhenStoreOpenReturnsFailure)
         handler.open(openTestSessionId, openTestROFlags, openTestBlobId));
 }
 
-TEST_F(BinaryStoreBlobHandlerOpenTest, SucceedWhenStoreOpenReturnsTrue)
+TEST_F(BinaryStoreBlobHandlerOpenTest, SucceedWhenStoreOpenReturnsTrueMock)
 {
     auto store = defaultMockStore(openTestBaseId);
 
@@ -104,6 +105,47 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, ClosedSessionCannotBeReclosed)
     EXPECT_TRUE(handler.close(openTestSessionId));
     EXPECT_FALSE(handler.close(openTestSessionId));
     EXPECT_FALSE(handler.close(openTestSessionId));
+}
+
+TEST_F(BinaryStoreBlobHandlerOpenTest, FailForNonMatchingBasePath)
+{
+    auto testBaseId = "/test/"s;
+    auto testBlobId = "/invalid/blob"s;
+    uint16_t flags = OpenFlags::read, sessionId = 0;
+    auto bstore =
+        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    handler.addNewBinaryStore(std::move(bstore));
+
+    EXPECT_FALSE(handler.open(sessionId, flags, testBlobId));
+}
+
+TEST_F(BinaryStoreBlobHandlerOpenTest, OpenCloseSucceedForValidBlobId)
+{
+    auto testBaseId = "/test/"s;
+    auto testBlobId = "/test/blob0"s;
+    uint16_t flags = OpenFlags::read, sessionId = 0;
+    auto bstore =
+        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    handler.addNewBinaryStore(std::move(bstore));
+
+    EXPECT_FALSE(handler.close(sessionId)); // Haven't open
+    EXPECT_TRUE(handler.open(sessionId, flags, testBlobId));
+    EXPECT_TRUE(handler.close(sessionId));
+    EXPECT_FALSE(handler.close(sessionId)); // Already closed
+}
+
+TEST_F(BinaryStoreBlobHandlerOpenTest, OpenSuccessShowsBlobId)
+{
+    auto testBaseId = "/test/"s;
+    auto testBlobId = "/test/blob0"s;
+    uint16_t flags = OpenFlags::read, sessionId = 0;
+    auto bstore =
+        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    handler.addNewBinaryStore(std::move(bstore));
+
+    EXPECT_TRUE(handler.open(sessionId, flags, testBlobId));
+    EXPECT_THAT(handler.getBlobIds(),
+                UnorderedElementsAreArray({testBaseId, testBlobId}));
 }
 
 } // namespace blobs
