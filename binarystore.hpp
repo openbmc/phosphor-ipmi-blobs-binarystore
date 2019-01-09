@@ -136,12 +136,20 @@ class BinaryStore : public BinaryStoreInterface
                          std::unique_ptr<SysFile> file, uint32_t maxSize);
 
   private:
+    enum class CommitState
+    {
+        Dirty,      // In-memory data might not match persisted data
+        Clean,      // In-memory data matches persisted data
+        CommitError // Error happened during committing
+    };
+
     std::string baseBlobId_;
     binaryblobproto::BinaryBlobBase blob_;
     binaryblobproto::BinaryBlob* currentBlob_ = nullptr;
     bool writable_ = false;
     std::unique_ptr<SysFile> file_ = nullptr;
     uint32_t maxSize_;
+    CommitState commitState_ = CommitState::Dirty;
 };
 
 } // namespace binstore
