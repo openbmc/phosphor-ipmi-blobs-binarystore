@@ -6,6 +6,7 @@
 #include <blobs-ipmid/blobs.hpp>
 #include <cstdint>
 #include <memory>
+#include <phosphor-logging/elog.hpp>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,8 @@ using std::uint8_t;
 
 namespace binstore
 {
+
+using namespace phosphor::logging;
 
 namespace internal
 {
@@ -62,6 +65,7 @@ std::unique_ptr<BinaryStoreInterface>
 {
     if (baseBlobId.empty() || !file)
     {
+        log<level::ERR>("Unable to create binarystore from invalid config");
         return nullptr;
     }
 
@@ -94,12 +98,15 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
 {
     if (!(flags & blobs::OpenFlags::read))
     {
+        log<level::ERR>("OpenFlags::read not specified when opening");
         return false;
     }
 
     if (currentBlob_ && (currentBlob_->blob_id() != blobId))
     {
-        /* Already handling a different blob */
+        log<level::ERR>("Already handling a different blob",
+                        entry("EXPECTED=%s", currentBlob_->blob_id().c_str()),
+                        entry("RECEIVED=%s", blobId.c_str()));
         return false;
     }
 
@@ -109,6 +116,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     // Note it will overwrite existing unsaved data per design.
     if (commitState_ != CommitState::Clean)
     {
+        log<level::NOTICE>("Try loading from persistent data");
         try
         {
             // Parse length-prefixed format to protobuf
@@ -119,11 +127,14 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
             {
                 // Fail to parse the data, which might mean read failure or no
                 // preexsiting data.
-                // TODO: logging
+                log<level::WARNING>(
+                    "Fail to parse. There might be no persisted blobs");
             }
         }
         catch (const std::exception& e)
         {
+            log<level::ERR>("Reading from sysfile failed",
+                            entry("ERROR=%s", e.what()));
         }
     }
 
@@ -144,6 +155,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     currentBlob_ = blob_.add_blobs();
     currentBlob_->set_blob_id(blobId);
 
+    log<level::NOTICE>("Created new blob");
     return true;
 }
 
@@ -159,6 +171,7 @@ std::vector<uint8_t> BinaryStore::read(uint32_t offset, uint32_t requestedSize)
 
     if (!currentBlob_)
     {
+        log<level::ERR>("No open blob to read");
         return result;
     }
 
@@ -167,6 +180,7 @@ std::vector<uint8_t> BinaryStore::read(uint32_t offset, uint32_t requestedSize)
 
     if (offset >= dataPtr->size())
     {
+        log<level::ERR>("Read offset is beyond data size");
         return result;
     }
 
@@ -182,11 +196,13 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 {
     if (!currentBlob_)
     {
+        log<level::ERR>("No open blob to write");
         return false;
     }
 
     if (!writable_)
     {
+        log<level::ERR>("Open blob is not writable");
         return false;
     }
 
@@ -194,7 +210,7 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 
     if (offset > dataPtr->size())
     {
-        /* Will leave a gap with undefined data */
+        log<level::ERR>("Write would leave a gap with undefined data. Return.");
         return false;
     }
 
@@ -218,7 +234,8 @@ bool BinaryStore::commit()
     }
     catch (const std::exception& e)
     {
-        // TODO: logging
+        log<level::ERR>("Writing to sysfile failed",
+                        entry("ERROR=%s", e.what()));
     };
 
     commitState_ = CommitState::Clean;
