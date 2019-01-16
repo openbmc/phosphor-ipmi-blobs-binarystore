@@ -77,8 +77,7 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, FailForNonMatchingBasePath)
     auto testBaseId = "/test/"s;
     auto testBlobId = "/invalid/blob"s;
     uint16_t flags = OpenFlags::read, sessionId = 0;
-    auto bstore =
-        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    auto bstore = BinaryStore::createFromConfig(testBaseId, &fakeFile, 0);
     handler.addNewBinaryStore(std::move(bstore));
 
     EXPECT_FALSE(handler.open(sessionId, flags, testBlobId));
@@ -89,8 +88,7 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, OpenCloseSucceedForValidBlobId)
     auto testBaseId = "/test/"s;
     auto testBlobId = "/test/blob0"s;
     uint16_t flags = OpenFlags::read, sessionId = 0;
-    auto bstore =
-        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    auto bstore = BinaryStore::createFromConfig(testBaseId, &fakeFile, 0);
     handler.addNewBinaryStore(std::move(bstore));
 
     EXPECT_FALSE(handler.close(sessionId)); // Haven't open
@@ -104,8 +102,7 @@ TEST_F(BinaryStoreBlobHandlerOpenTest, OpenSuccessShowsBlobId)
     auto testBaseId = "/test/"s;
     auto testBlobId = "/test/blob0"s;
     uint16_t flags = OpenFlags::read, sessionId = 0;
-    auto bstore =
-        BinaryStore::createFromConfig(testBaseId, "/fake/systempath"s, 0, 0);
+    auto bstore = BinaryStore::createFromConfig(testBaseId, &fakeFile, 0);
     handler.addNewBinaryStore(std::move(bstore));
 
     EXPECT_TRUE(handler.open(sessionId, flags, testBlobId));
