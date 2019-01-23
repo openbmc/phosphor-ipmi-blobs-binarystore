@@ -11,6 +11,7 @@ libbinarystore_LTLIBRARIES = libbinarystore.la
 libbinarystore_la_SOURCES = main.cpp \
 			    binaryblob.pb.cc \
 			    binarystore.cpp \
+			    sys.cpp \
 			    sys_file.cpp \
 			    handler.cpp
 
