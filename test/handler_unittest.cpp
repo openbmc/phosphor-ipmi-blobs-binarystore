@@ -1,5 +1,6 @@
 #include "handler_unittest.hpp"
 
+#include "binarystore.hpp"
 #include "fake_sys_file.hpp"
 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -7,10 +8,12 @@
 #include <google/protobuf/text_format.h>
 
 #include <algorithm>
+#include <boost/endian/arithmetic.hpp>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "binaryblob.pb.h"
 #include "binaryblobconfig.pb.h"
 
 using ::testing::_;
@@ -170,6 +173,35 @@ TEST_F(BinaryStoreBlobHandlerBasicTest, CanParseAndStoreConfig)
         config.entries(0).blob_base_id(), std::make_unique<FakeSysFile>(),
         config.entries(0).max_size_bytes()));
     EXPECT_TRUE(handler.canHandleBlob(basicTestBlobId));
+}
+
+TEST_F(BinaryStoreBlobHandlerBasicTest, StaleDataIsClearedDuringCreation)
+{
+    using namespace google::protobuf;
+
+    const std::string basicTestStaleBlobStr = "blob_base_id: \"/stale/\"\n"
+                                              "blobs {\n"
+                                              "blob_id: \"/stale/blob\"\n"
+                                              "}"s;
+
+    // Create sysfile containing a valid but stale blob
+    const std::string staleBaseId = "/stale/"s;
+    const std::string staleBlobId = "/stale/blob"s;
+    binaryblobproto::BinaryBlobBase staleBlob;
+    EXPECT_TRUE(TextFormat::ParseFromString(basicTestStaleBlobStr, &staleBlob));
+
+    // Serialize to string stored in the fakeSysFile
+    auto staleBlobData = staleBlob.SerializeAsString();
+    boost::endian::little_uint64_t sizeLE = staleBlobData.size();
+    std::string commitData(sizeLE.data(), sizeof(sizeLE));
+    commitData += staleBlobData;
+
+    std::vector<std::string> expectedIdList = {basicTestBaseId};
+
+    handler.addNewBinaryStore(BinaryStore::createFromConfig(
+        basicTestBaseId, std::make_unique<FakeSysFile>(commitData), 0));
+    EXPECT_FALSE(handler.canHandleBlob(staleBlobId));
+    EXPECT_EQ(handler.getBlobIds(), expectedIdList);
 }
 
 } // namespace blobs
