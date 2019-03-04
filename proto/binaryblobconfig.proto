@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package blobs.binaryblob;
+
+/* BinaryBlobConfigEntry contains where the serialized content is stored in the
+   system, and offset/size associated. */
+message BinaryBlobConfigEntry {
+    optional string blob_base_id = 1;
+    optional string sysfile_path = 2;
+    optional uint64 offset_bytes = 3;
+    optional uint64 max_size_bytes = 4;
+}
+
+message BinaryBlobConfig {
+    repeated BinaryBlobConfigEntry entries = 1;
+}

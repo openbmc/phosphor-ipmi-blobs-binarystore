@@ -1,9 +1,17 @@
 #include "handler_unittest.hpp"
 
+#include "fake_sys_file.hpp"
+
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+#include <google/protobuf/message_lite.h>
+#include <google/protobuf/text_format.h>
+
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "binaryblobconfig.pb.h"
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -46,6 +54,13 @@ const std::vector<std::string>
     BinaryStoreBlobHandlerBasicTest::basicTestBaseIdList = {
         BinaryStoreBlobHandlerBasicTest::basicTestBaseId, "/another/"s,
         "/null\0/"s};
+
+const std::string basicTestSimpleConfig =
+    "entries {\n"
+    "blob_base_id: \"/test/\"\n"
+    "sysfile_path: \"/some/random/place\"\n"
+    "offset_bytes: 3\n"
+    "}"s;
 
 TEST_F(BinaryStoreBlobHandlerBasicTest, CanHandleBlobZeroStoreFail)
 {
@@ -138,6 +153,23 @@ TEST_F(BinaryStoreBlobHandlerBasicTest, DeleteReturnsWhatStoreReturns)
     EXPECT_FALSE(handler.deleteBlob(basicTestInvalidBlobId));
     EXPECT_FALSE(handler.deleteBlob(basicTestBlobId));
     EXPECT_TRUE(handler.deleteBlob(basicTestBlobId));
+}
+
+TEST_F(BinaryStoreBlobHandlerBasicTest, CanParseAndStoreConfig)
+{
+    using namespace google::protobuf;
+
+    // Validate that a BinaryStore can be created successfully from
+    // a configutation created manually.
+    binaryblob::BinaryBlobConfig config;
+    EXPECT_TRUE(TextFormat::ParseFromString(basicTestSimpleConfig, &config));
+    EXPECT_EQ(config.entries(0).blob_base_id(), basicTestBaseId);
+
+    // Verify that we can construct a mock from the config and add it
+    handler.addNewBinaryStore(std::make_unique<BinaryStore>(
+        config.entries(0).blob_base_id(), std::make_unique<FakeSysFile>(),
+        config.entries(0).max_size_bytes()));
+    EXPECT_TRUE(handler.canHandleBlob(basicTestBlobId));
 }
 
 } // namespace blobs

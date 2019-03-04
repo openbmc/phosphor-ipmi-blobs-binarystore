@@ -17,6 +17,7 @@ libbinarystoredir = ${libdir}/ipmid-providers
 libbinarystore_LTLIBRARIES = libbinarystore.la
 libbinarystore_la_SOURCES = main.cpp \
 			    binaryblob.pb.cc \
+			    binaryblobconfig.pb.cc \
 			    binarystore.cpp \
 			    sys.cpp \
 			    sys_file.cpp \
@@ -33,7 +34,12 @@ libbinarystore_la_CXXFLAGS = -I$(srcdir) $(PHOSPHOR_LOGGING_CFLAGS) \
 binaryblob.pb.h binaryblob.pb.cc: $(srcdir)/$(PROTOS_PATH)/binaryblob.proto
 	$(PROTOC) -I$(srcdir)/$(PROTOS_PATH) --cpp_out=. $<
 
-BUILT_SOURCES = binaryblob.pb.h binaryblob.pb.cc
+binaryblobconfig.pb.h binaryblobconfig.pb.cc: \
+	$(srcdir)/$(PROTOS_PATH)/binaryblobconfig.proto
+	$(PROTOC) -I$(srcdir)/$(PROTOS_PATH) --cpp_out=. $<
+
+BUILT_SOURCES = binaryblob.pb.h binaryblob.pb.cc \
+		binaryblobconfig.pb.h binaryblobconfig.pb.cc
 
 SUBDIRS = . test
 

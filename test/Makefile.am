@@ -29,6 +29,7 @@ handler_unittest_LDADD = $(PHOSPHOR_LOGGING_LIBS) \
 	$(top_builddir)/binarystore.o \
 	$(top_builddir)/sys_file.o \
 	$(top_builddir)/libbinarystore_la-binaryblob.pb.o \
+	$(top_builddir)/libbinarystore_la-binaryblobconfig.pb.o \
 	-lprotobuf
 handler_unittest_CXXFLAGS = $(PHOSPHOR_LOGGING_CFLAGS)
 

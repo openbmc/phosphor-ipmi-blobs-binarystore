@@ -1,5 +1,7 @@
 #include "handler.hpp"
 
+#include "binarystore.hpp"
+
 #include <algorithm>
 #include <cstdint>
 #include <memory>
