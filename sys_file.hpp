@@ -36,6 +36,7 @@ class SysFile
      * @returns The data read in a vector, whose size might be smaller than
      *          count if there is not enough to read.
      * @throws std::system_error if read operation cannot be completed
+     *         propagates exceptiosn constructing string with length 'count'
      */
     virtual std::string readAsStr(size_t pos, size_t count) const = 0;
 

@@ -67,6 +67,11 @@ bool BinaryStore::loadSerializedData()
         boost::endian::little_uint64_t size = 0;
         file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
 
+        if (size == 0)
+        {
+            return true;
+        }
+
         if (!blob_.ParseFromString(file_->readAsStr(sizeof(uint64_t), size)))
         {
             /* Fail to parse the data, which might mean no preexsiting blobs
@@ -74,14 +79,21 @@ bool BinaryStore::loadSerializedData()
             log<level::WARNING>(
                 "Fail to parse. There might be no persisted blobs",
                 entry("BASE_ID=%s", baseBlobId_.c_str()));
+
+            return true;
         }
     }
-    catch (const std::exception& e)
+    catch (const std::system_error& e)
     {
         /* Read causes unexpected system-level failure */
         log<level::ERR>("Reading from sysfile failed",
                         entry("ERROR=%s", e.what()));
         return false;
+    }
+    catch (const std::exception& e)
+    {
+        log<level::WARNING>("Invalid size. There might be no persisted blobs.");
+        return true;
     }
 
     if (blob_.blob_base_id() != baseBlobId_)
