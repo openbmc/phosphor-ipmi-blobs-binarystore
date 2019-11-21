@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 
+#include <blobs-ipmid/blobs.hpp>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -89,7 +90,7 @@ class BinaryStoreInterface
     /**
      * TODO
      */
-    virtual bool stat() = 0;
+    virtual bool stat(blobs::BlobMeta* meta) = 0;
 };
 
 /**
@@ -124,7 +125,7 @@ class BinaryStore : public BinaryStoreInterface
     bool write(uint32_t offset, const std::vector<uint8_t>& data) override;
     bool commit() override;
     bool close() override;
-    bool stat() override;
+    bool stat(blobs::BlobMeta* meta) override;
 
     /**
      * Helper factory method to create a BinaryStore instance
