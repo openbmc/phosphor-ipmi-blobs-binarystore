@@ -272,9 +272,52 @@ bool BinaryStore::close()
     return true;
 }
 
-bool BinaryStore::stat()
+/*
+enum BmcBlobStateFlagBits {
+    OPEN_R = 0,
+    OPEN_W = 1,
+    COMMITTING = 2,
+    COMMITTED = 3,
+    COMMIT_ERROR = 4,
+    <bits 5-7 reserved>
+    <bits 8-15 given blob-specific definitions>
+};
+
+We will use these bits in addition:
+  8: CommitState::Dirty
+  9: CommitState::Uninitialized
+*/
+bool BinaryStore::stat(blobs::BlobMeta* meta)
 {
-    return false;
+    uint16_t blobState = blobs::StateFlags::open_read;
+    if (writable_)
+        blobState |= blobs::StateFlags::open_write;
+
+    switch (commitState_)
+    {
+        case CommitState::Dirty:
+            blobState |= (1 << 8);
+            break;
+        case CommitState::Clean:
+            blobState |= blobs::StateFlags::committed;
+            break;
+        case CommitState::Uninitialized:
+            blobState |= (1 << 9);
+            break;
+        case CommitState::CommitError:
+            blobState |= blobs::StateFlags::commit_error;
+            break;
+        default: // Unreachable
+            return false;
+    }
+
+    if (currentBlob_)
+    {
+        meta->size = currentBlob_->data().size();
+    }
+    meta->blobState = blobState;
+
+    return true;
 }
 
 } // namespace binstore

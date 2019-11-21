@@ -42,7 +42,7 @@ class MockBinaryStore : public BinaryStoreInterface
     MOCK_METHOD2(write, bool(uint32_t, const std::vector<uint8_t>&));
     MOCK_METHOD0(commit, bool());
     MOCK_METHOD0(close, bool());
-    MOCK_METHOD0(stat, bool());
+    MOCK_METHOD1(stat, bool(blobs::BlobMeta* meta));
 
   private:
     BinaryStore real_store_;
