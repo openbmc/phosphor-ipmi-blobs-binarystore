@@ -273,9 +273,58 @@ bool BinaryStore::close()
     return true;
 }
 
-bool BinaryStore::stat()
+/*
+ * Definition from phosphor-ipmi-blobs header blob.hpp:
+
+enum StateFlags
 {
-    return false;
+    open_read = (1 << 0),
+    open_write = (1 << 1),
+    committing = (1 << 2),
+    committed = (1 << 3),
+    commit_error = (1 << 4),
+    // bits 8-15 given blob-specific definitions
+};
+
+*/
+bool BinaryStore::stat(blobs::BlobMeta* meta)
+{
+    uint16_t blobState = blobs::StateFlags::open_read;
+    if (writable_)
+    {
+        blobState |= blobs::StateFlags::open_write;
+    }
+
+    switch (commitState_)
+    {
+        case CommitState::Dirty:
+            blobState |= BStoreOEMFlags::dirty;
+            break;
+        case CommitState::Clean:
+            blobState |= BStoreOEMFlags::clean;
+            blobState |= blobs::StateFlags::committed;
+            break;
+        case CommitState::Uninitialized:
+            blobState |= BStoreOEMFlags::uninitialized;
+            break;
+        case CommitState::CommitError:
+            blobState |= blobs::StateFlags::commit_error;
+            break;
+        default: // Unreachable
+            return false;
+    }
+
+    if (currentBlob_)
+    {
+        meta->size = currentBlob_->data().size();
+    }
+    else
+    {
+        meta->size = 0;
+    }
+    meta->blobState = blobState;
+
+    return true;
 }
 
 } // namespace binstore
