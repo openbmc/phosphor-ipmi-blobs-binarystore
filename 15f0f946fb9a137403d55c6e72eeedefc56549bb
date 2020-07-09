@@ -1,0 +1,8 @@
+Ok-To-Test+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: Kun Yi <kunyi731@gmail.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: Patrick Venture <venture@google.com>
+Submitted-at: Thu, 09 Jul 2020 20:24:09 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-ipmi-blobs-binarystore/+/34533
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
