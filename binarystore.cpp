@@ -48,6 +48,25 @@ std::unique_ptr<BinaryStoreInterface>
     return std::move(store);
 }
 
+std::unique_ptr<BinaryStoreInterface>
+    BinaryStore::createFromFile(std::unique_ptr<SysFile> file, bool readOnly)
+{
+    if (!file)
+    {
+        log<level::ERR>("Unable to create binarystore from invalid file");
+        return nullptr;
+    }
+
+    auto store = std::make_unique<BinaryStore>(std::move(file), readOnly);
+
+    if (!store->loadSerializedData())
+    {
+        return nullptr;
+    }
+
+    return std::move(store);
+}
+
 bool BinaryStore::loadSerializedData()
 {
     /* Load blob from sysfile if we know it might not match what we have.
@@ -95,15 +114,22 @@ bool BinaryStore::loadSerializedData()
 
     if (blob_.blob_base_id() != baseBlobId_)
     {
-        /* Uh oh, stale data loaded. Clean it and commit. */
-        // TODO: it might be safer to add an option in config to error out
-        // instead of to overwrite.
-        log<level::ERR>("Stale blob data, resetting internals...",
-                        entry("LOADED=%s", blob_.blob_base_id().c_str()),
-                        entry("EXPECTED=%s", baseBlobId_.c_str()));
-        blob_.Clear();
-        blob_.set_blob_base_id(baseBlobId_);
-        return this->commit();
+        if (readOnly_)
+        {
+            baseBlobId_ = blob_.blob_base_id();
+        }
+        else
+        {
+            /* Uh oh, stale data loaded. Clean it and commit. */
+            // TODO: it might be safer to add an option in config to error out
+            // instead of to overwrite.
+            log<level::ERR>("Stale blob data, resetting internals...",
+                            entry("LOADED=%s", blob_.blob_base_id().c_str()),
+                            entry("EXPECTED=%s", baseBlobId_.c_str()));
+            blob_.Clear();
+            blob_.set_blob_base_id(baseBlobId_);
+            return this->commit();
+        }
     }
 
     return true;
@@ -144,7 +170,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
         return false;
     }
 
-    writable_ = flags & blobs::OpenFlags::write;
+    writable_ = readOnly_ ? false : flags & blobs::OpenFlags::write;
 
     /* If there are uncommitted data, discard them. */
     if (!this->loadSerializedData())
@@ -166,11 +192,20 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     }
 
     /* Otherwise, create the blob and append it */
-    currentBlob_ = blob_.add_blobs();
-    currentBlob_->set_blob_id(blobId);
+    if (readOnly_)
+    {
+        return false;
+    }
+    else
+    {
+        currentBlob_ = blob_.add_blobs();
+        currentBlob_->set_blob_id(blobId);
 
-    commitState_ = CommitState::Dirty;
-    log<level::NOTICE>("Created new blob", entry("BLOB_ID=%s", blobId.c_str()));
+        commitState_ = CommitState::Dirty;
+        log<level::NOTICE>("Created new blob",
+                           entry("BLOB_ID=%s", blobId.c_str()));
+    }
+
     return true;
 }
 
@@ -208,6 +243,23 @@ std::vector<uint8_t> BinaryStore::read(uint32_t offset, uint32_t requestedSize)
     return result;
 }
 
+std::vector<uint8_t> BinaryStore::readBlob(const std::string& blobId) const
+{
+    const auto blobs = blob_.blobs();
+    const auto blobIt =
+        std::find_if(blobs.begin(), blobs.end(),
+                     [&](const auto& b) { return b.blob_id() == blobId; });
+
+    if (blobIt == blobs.end())
+    {
+        return {};
+    }
+
+    const auto blobData = blobIt->data();
+
+    return std::vector<uint8_t>(blobData.begin(), blobData.end());
+}
+
 bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 {
     if (!currentBlob_)
@@ -242,6 +294,12 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 
 bool BinaryStore::commit()
 {
+    if (readOnly_)
+    {
+        log<level::ERR>("ReadOnly blob, not committing");
+        return false;
+    }
+
     /* Store as little endian to be platform agnostic. Consistent with read. */
     auto blobData = blob_.SerializeAsString();
     boost::endian::little_uint64_t sizeLE = blobData.size();
