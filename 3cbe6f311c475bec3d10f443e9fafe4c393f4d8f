@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "808e7086_5108a0e6",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-03T18:15:21Z",
+      "side": 1,
+      "message": "What would make it optional?",
+      "parentUuid": "bd99da00_b264888c",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6dc2a3d5_f1b5dbd6",
         "filename": "binarystore.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03cf8c16_a1d2439c",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-03T18:15:21Z",
+      "side": 1,
+      "message": "Maybe. I\u0027m keeping this backwards compatible, in case someone needs it. Fixing or changing this behavior is out of scope of this change.",
+      "parentUuid": "6dc2a3d5_f1b5dbd6",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "75907b8c_f4d77715",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-03T18:15:21Z",
+      "side": 1,
+      "message": "I\u0027ve added a short-circuit to return false in this case.",
+      "parentUuid": "281a46cf_c607fb8a",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa9aa5e0_f495e2f9",
         "filename": "binarystore.cpp",
         "patchSetId": 1
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "573390f8_2d4b6e57",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-03T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa9aa5e0_f495e2f9",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eab0fde4_87433851",
         "filename": "binarystore.hpp",
         "patchSetId": 1
@@ -81,6 +153,24 @@
       "writtenOn": "2021-11-03T03:44:07Z",
       "side": 1,
       "message": "Could you extend this to allow for readonly + overwriting id?",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9922113b_08f8a243",
+        "filename": "binarystore.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-03T18:15:21Z",
+      "side": 1,
+      "message": "I don\u0027t quite understand the suggestion. If we are overwriting anything, calling it readonly would be misleading.\n\n\nAlso, these constructors are pretty useless anyway (with \"loadSerializedData\" being private). They should have been private or protected, because it\u0027s a little misleading.",
+      "parentUuid": "eab0fde4_87433851",
       "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
