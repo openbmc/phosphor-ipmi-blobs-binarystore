@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd99da00_b264888c",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-03T03:44:07Z",
+      "side": 1,
+      "message": "I think it would make more sense to make the `baseBlobId_` optional inside the class, so that you can decouple read-only from this overwrite behavior.",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dc2a3d5_f1b5dbd6",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-03T03:44:07Z",
+      "side": 1,
+      "message": "Is this even the correct behavior? Should we just allow renaming without purging the data? Or provide this as a tweakable setting too?",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "281a46cf_c607fb8a",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-03T03:44:07Z",
+      "side": 1,
+      "message": "nit: Boolean expression? `!readOnly_ \u0026\u0026 flags \u0026 blobs::OpenFlags::write`\n\nAlthough it would probably be nicer to produce an error if opening for write and the blob is read only?",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa9aa5e0_f495e2f9",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-03T03:44:07Z",
+      "side": 1,
+      "message": "throw `ipmi::HandlerCompletion(ipmi::ccUnspecifiedError)` (or more specific error if one fits) to differentiate from no data.",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eab0fde4_87433851",
+        "filename": "binarystore.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-03T03:44:07Z",
+      "side": 1,
+      "message": "Could you extend this to allow for readonly + overwriting id?",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
