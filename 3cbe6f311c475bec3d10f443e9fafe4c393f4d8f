@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "3568c0e8_89a260d2",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-09T18:09:30Z",
+      "side": 1,
+      "message": "The \"readonly\" feature is not available via config and I don\u0027t plan to add it there.\n\nAnd I would agree that effectively trashing the whole blob, if the name does not match was quite surprising and the whole reason why this change is necessary.\n\nhttps://gbmc-internal-review.git.corp.google.com/c/meta-vendor-private/+/87953\n\nI\u0027ve changed the logic of the baseBlobId_ getter, hopefully that makes it a little better.",
+      "parentUuid": "26677f56_0b36d38e",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6dc2a3d5_f1b5dbd6",
         "filename": "binarystore.cpp",
         "patchSetId": 1
@@ -210,6 +228,24 @@
       "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "518affbd_3ed7de86",
+        "filename": "binarystore.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2021-11-09T18:09:30Z",
+      "side": 1,
+      "message": "I see.\n\nThat would be useful, but this is a big feature by itself, with changes to both API and behavior, so it\u0027s out of scope of this change.\n\nI\u0027m trying not to change the existing behavior and the feature that I add are not available via config.",
+      "parentUuid": "4cdd200d_39b7f993",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
