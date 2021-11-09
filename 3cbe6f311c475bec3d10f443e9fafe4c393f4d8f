@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "26677f56_0b36d38e",
+        "filename": "binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-09T11:02:56Z",
+      "side": 1,
+      "message": "It seems like readonly mode changes this bit in a suprising way. If you don\u0027t set readonly, it clears out the entire eeprom if the name doesn\u0027t match. If you do set readonly, it ignores whatever name is in the config and assumes the name in the eeprom. This would be surprising if I hadn\u0027t seen the code. The name should probably be decoupled from the data to allow for renaming. Previously we didn\u0027t have two modes of operation, so it only behaved a single way (admittedly still somewhat surprising to me).",
+      "parentUuid": "808e7086_5108a0e6",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6dc2a3d5_f1b5dbd6",
         "filename": "binarystore.cpp",
         "patchSetId": 1
@@ -171,6 +189,24 @@
       "side": 1,
       "message": "I don\u0027t quite understand the suggestion. If we are overwriting anything, calling it readonly would be misleading.\n\n\nAlso, these constructors are pretty useless anyway (with \"loadSerializedData\" being private). They should have been private or protected, because it\u0027s a little misleading.",
       "parentUuid": "eab0fde4_87433851",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cdd200d_39b7f993",
+        "filename": "binarystore.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-09T11:02:56Z",
+      "side": 1,
+      "message": "Presumably though you would want the ability to ignore the blob id in the eeprom and still have it be readonly. It wouldn\u0027t update what is in the eeprom though. It would allow you to remap things like /skm/hss -\u003e /skm/hss-backup and make the backup read-only. Otherwise you would just be prevented from using it this way.",
+      "parentUuid": "9922113b_08f8a243",
       "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
