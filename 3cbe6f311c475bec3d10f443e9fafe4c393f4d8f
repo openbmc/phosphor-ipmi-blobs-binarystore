@@ -246,6 +246,24 @@
       "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31be0ba_6d269921",
+        "filename": "binarystore.hpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-11T10:01:59Z",
+      "side": 1,
+      "message": "Alright, should be fine for now.",
+      "parentUuid": "518affbd_3ed7de86",
+      "revId": "3cbe6f311c475bec3d10f443e9fafe4c393f4d8f",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
