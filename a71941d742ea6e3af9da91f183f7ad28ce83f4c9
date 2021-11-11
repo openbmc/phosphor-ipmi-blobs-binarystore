@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9d0fbfd_a59f3bf2",
+        "filename": "blobtool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-11T10:11:15Z",
+      "side": 1,
+      "message": "cerr? Usually the standard for help output.",
+      "revId": "a71941d742ea6e3af9da91f183f7ad28ce83f4c9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e9b33e_a49af29f",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-11T10:11:15Z",
+      "side": 1,
+      "message": "We should probably invert this and update the bitbake rule accordingly. We want this to build locally and during CI runs to ensure the code still builds.",
+      "revId": "a71941d742ea6e3af9da91f183f7ad28ce83f4c9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
