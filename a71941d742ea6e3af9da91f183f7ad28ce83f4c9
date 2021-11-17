@@ -33,6 +33,24 @@
       "revId": "a71941d742ea6e3af9da91f183f7ad28ce83f4c9",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28355634_92483202",
+        "filename": "configure.ac",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-17T21:30:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c6e9b33e_a49af29f",
+      "revId": "a71941d742ea6e3af9da91f183f7ad28ce83f4c9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }

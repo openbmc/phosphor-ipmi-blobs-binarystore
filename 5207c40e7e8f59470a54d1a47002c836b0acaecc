@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b4fad5b1_4fda9f76",
+        "filename": "blobtool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-17T21:30:29Z",
+      "side": 1,
+      "message": "Maybe some of the older ones (I guess maybe `gpg` or `nm`), but `systemctl`, `busybox`, `git` and plenty of others use more explicit operation arguments.",
+      "parentUuid": "7ac1ca97_5acff370",
+      "revId": "5207c40e7e8f59470a54d1a47002c836b0acaecc",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a718395_f301923b",
         "filename": "blobtool.cpp",
         "patchSetId": 4
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "The configuration file can have multiple stored defined.",
       "parentUuid": "4a718395_f301923b",
+      "revId": "5207c40e7e8f59470a54d1a47002c836b0acaecc",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10e96119_e75a1508",
+        "filename": "blobtool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-11-17T21:30:29Z",
+      "side": 1,
+      "message": "Right, I missed the loop below.",
+      "parentUuid": "b1f79035_0d9a010a",
       "revId": "5207c40e7e8f59470a54d1a47002c836b0acaecc",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": false
