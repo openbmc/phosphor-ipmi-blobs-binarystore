@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfb76d50_2936753e",
+        "filename": "meson.build",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2021-12-08T10:36:11Z",
+      "side": 1,
+      "message": "You should make this just a `library` so that the BMC ends up building it as a shared lib. Then we won\u0027t duplicate between both output binaries. Normally I do shared libraries when there is only a single executable.",
+      "revId": "ea08e4a68cddc2955a0514718d44c98a9776623c",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    }
+  ]
+}
