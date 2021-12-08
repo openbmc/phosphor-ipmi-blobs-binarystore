@@ -9,6 +9,7 @@
 #include <iterator>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 #include <gmock/gmock.h>
 
@@ -37,6 +38,11 @@ const std::string inputProto = "blob_base_id: \"/blob/my-test\""
                                "\""
                                "}] "
                                "max_size_bytes: 64";
+const std::string smallInputProto = "blob_base_id: \"/s/test\""
+                                    "blobs: [{ "
+                                    "    blob_id: \"/s/test/0\""
+                                    "}] "
+                                    "max_size_bytes: 64";
 
 class SysFileBuf : public binstore::SysFile
 {
@@ -166,4 +172,40 @@ TEST_F(BinaryStoreTest, TestOpenReadOnlyBlob)
         store->openOrCreateBlob("/blob/my-test/2", blobs::OpenFlags::read));
     EXPECT_FALSE(store->openOrCreateBlob(
         "/blob/my-test/2", blobs::OpenFlags::read & blobs::OpenFlags::write));
+}
+
+TEST_F(BinaryStoreTest, TestWriteExceedMaxSize)
+{
+    std::vector<uint8_t> writeData(10, 0);
+    auto testDataFile = createBlobStorage(smallInputProto);
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/s/test", std::move(testDataFile), 62);
+    ASSERT_TRUE(store);
+
+    EXPECT_TRUE(store->openOrCreateBlob(
+        "/s/test/0", blobs::OpenFlags::write | blobs::OpenFlags::read));
+    // Current size 26(blob_) + 8(size var) + 4 (max_size) = 38`
+    EXPECT_TRUE(store->write(0, writeData));   // 58 =  10(blob_name) + 10(data)
+    EXPECT_FALSE(store->write(10, writeData)); // 68 = 10 (new data)
+    EXPECT_FALSE(store->write(5, writeData));  // 63 = 5 (new data)
+}
+
+TEST_F(BinaryStoreTest, TestCreateFromConfigExceedMaxSize)
+{
+    auto testDataFile = createBlobStorage(inputProto);
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/blob/my-test", std::move(testDataFile), 1);
+    ASSERT_TRUE(store);
+    EXPECT_FALSE(store->commit());
+}
+
+TEST_F(BinaryStoreTest, TestCreateFromFileExceedMaxSize)
+{
+    auto testDataFile = createBlobStorage(inputProto);
+    auto store = binstore::BinaryStore::createFromFile(std::move(testDataFile),
+                                                       false, 1);
+
+    // Reading from File is expected to call loadSerializedData and fail at the
+    // commit()
+    EXPECT_FALSE(store);
 }
