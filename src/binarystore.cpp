@@ -9,8 +9,10 @@
 #include <blobs-ipmid/blobs.hpp>
 #include <boost/endian/arithmetic.hpp>
 #include <cstdint>
+#include <iostream>
 #include <ipmid/handler.hpp>
 #include <memory>
+#include <optional>
 #include <phosphor-logging/elog.hpp>
 #include <string>
 #include <vector>
@@ -30,7 +32,8 @@ using namespace phosphor::logging;
 
 std::unique_ptr<BinaryStoreInterface>
     BinaryStore::createFromConfig(const std::string& baseBlobId,
-                                  std::unique_ptr<SysFile> file)
+                                  std::unique_ptr<SysFile> file,
+                                  std::optional<uint32_t> maxSize)
 {
     if (baseBlobId.empty() || !file)
     {
@@ -39,7 +42,8 @@ std::unique_ptr<BinaryStoreInterface>
         return nullptr;
     }
 
-    auto store = std::make_unique<BinaryStore>(baseBlobId, std::move(file));
+    auto store =
+        std::make_unique<BinaryStore>(baseBlobId, std::move(file), maxSize);
 
     if (!store->loadSerializedData())
     {
@@ -50,21 +54,27 @@ std::unique_ptr<BinaryStoreInterface>
 }
 
 std::unique_ptr<BinaryStoreInterface>
-    BinaryStore::createFromFile(std::unique_ptr<SysFile> file, bool readOnly)
+    BinaryStore::createFromFile(std::unique_ptr<SysFile> file, bool readOnly,
+                                std::optional<uint32_t> maxSize)
 {
+    std::cout << "testing " << std::endl;
     if (!file)
     {
         log<level::ERR>("Unable to create binarystore from invalid file");
         return nullptr;
     }
 
-    auto store = std::make_unique<BinaryStore>(std::move(file), readOnly);
+    auto store =
+        std::make_unique<BinaryStore>(std::move(file), readOnly, maxSize);
 
     if (!store->loadSerializedData())
     {
+        std::cout << "testing 1" << std::endl;
+        log<level::ERR>("testing failed");
         return nullptr;
     }
 
+    log<level::ERR>("testing 222failed");
     return store;
 }
 
@@ -91,6 +101,16 @@ bool BinaryStore::loadSerializedData()
             /* Fail to parse the data, which might mean no preexsiting blobs
              * and is a valid case to handle. Simply init an empty binstore. */
             commitState_ = CommitState::Uninitialized;
+        }
+
+        // The new max size takes priority
+        if (maxSize)
+        {
+            blob_.set_max_size_bytes(*maxSize);
+        }
+        else
+        {
+            blob_.clear_max_size_bytes();
         }
     }
     catch (const std::system_error& e)
@@ -156,6 +176,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
 {
     if (!(flags & blobs::OpenFlags::read))
     {
+        std::cout << "testing optn: 0" << std::endl;
         log<level::ERR>("OpenFlags::read not specified when opening",
                         entry("BLOB_ID=%s", blobId.c_str()));
         return false;
@@ -163,6 +184,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
 
     if (currentBlob_ && (currentBlob_->blob_id() != blobId))
     {
+        std::cout << "testing optn: 1" << std::endl;
         log<level::ERR>("Already handling a different blob",
                         entry("EXPECTED=%s", currentBlob_->blob_id().c_str()),
                         entry("RECEIVED=%s", blobId.c_str()));
@@ -171,6 +193,7 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
 
     if (readOnly_ && (flags & blobs::OpenFlags::write))
     {
+        std::cout << "testing optn: 2" << std::endl;
         log<level::ERR>("Can't open the blob for writing: read-only store",
                         entry("BLOB_ID=%s", blobId.c_str()));
         return false;
@@ -183,6 +206,8 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     {
         return false;
     }
+
+    std::cout << "Size: " << blob_.SerializeAsString().size() << std::endl;
 
     /* Iterate and find if there is an existing blob with this id.
      * blobsPtr points to a BinaryBlob container with STL-like semantics*/
@@ -270,12 +295,14 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 {
     if (!currentBlob_)
     {
+        std::cout << "testing 0" << std::endl;
         log<level::ERR>("No open blob to write");
         return false;
     }
 
     if (!writable_)
     {
+        std::cout << "testing 1" << std::endl;
         log<level::ERR>("Open blob is not writable");
         return false;
     }
@@ -284,13 +311,28 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 
     if (offset > dataPtr->size())
     {
+        std::cout << "testing 2" << std::endl;
         log<level::ERR>("Write would leave a gap with undefined data. Return.");
+        return false;
+    }
+
+    bool needResize = offset + data.size() > dataPtr->size();
+    size_t currentSize = blob_.SerializeAsString().size() +
+                         sizeof(boost::endian::little_uint64_t);
+    size_t sizeDelta = needResize ? offset + data.size() - dataPtr->size() : 0;
+
+    std::cout << "Total Size: " << currentSize + sizeDelta << std::endl;
+    if (maxSize && currentSize + sizeDelta > *maxSize)
+    {
+        std::cout << "testing 3" << std::endl;
+        log<level::ERR>("Write data would make the total size exceed the max "
+                        "size allowed. Return.");
         return false;
     }
 
     commitState_ = CommitState::Dirty;
     /* Copy (overwrite) the data */
-    if (offset + data.size() > dataPtr->size())
+    if (needResize)
     {
         dataPtr->resize(offset + data.size()); // not enough space, extend
     }
@@ -312,6 +354,13 @@ bool BinaryStore::commit()
     std::string commitData(reinterpret_cast<const char*>(sizeLE.data()),
                            sizeof(sizeLE));
     commitData += blobData;
+
+    // This should never be true if it is blocked by the write command
+    if (maxSize && sizeof(commitData) > *maxSize)
+    {
+        log<level::ERR>("Commit Data excedded maximum allowed size");
+        return false;
+    }
 
     try
     {
