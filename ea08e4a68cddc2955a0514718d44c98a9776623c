@@ -34,6 +34,24 @@
       "revId": "ea08e4a68cddc2955a0514718d44c98a9776623c",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "def490ff_fdfabc5b",
+        "filename": "meson.build",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-09T17:53:54Z",
+      "side": 1,
+      "message": "I just removed `shared_module`. We don\u0027t need that, right?\n\n\nCurrent Result.\n```\n$ ninja install\n[0/1] Installing files.\nInstalling src/libbinarystore.so to /usr/local/lib/x86_64-linux-gnu/blob-ipmid\nInstalling src/blobtool to /usr/local/bin\n```",
+      "parentUuid": "c5a4aebc_51547b73",
+      "revId": "ea08e4a68cddc2955a0514718d44c98a9776623c",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
