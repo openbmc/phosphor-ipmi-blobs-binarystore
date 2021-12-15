@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "761cf816_afc4d11f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b7d3cb2_f40bba6b",
+      "range": {
+        "startLine": 11,
+        "startChar": 7,
+        "endLine": 11,
+        "endChar": 8
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "226d2c1b_6f459b76",
         "filename": "binarystore.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "894d8bbf_0411cd86",
+        "filename": "binarystore.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "226d2c1b_6f459b76",
+      "range": {
+        "startLine": 308,
+        "startChar": 24,
+        "endLine": 308,
+        "endChar": 64
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "563291b1_4ca56010",
+        "filename": "test/binarystore_unittest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da11e6a0_ce5636e7",
+      "range": {
+        "startLine": 187,
+        "startChar": 59,
+        "endLine": 187,
+        "endChar": 60
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f8ddf72_ee4816d0",
         "filename": "test/binarystore_unittest.cpp",
         "patchSetId": 8
@@ -82,6 +154,30 @@
       "writtenOn": "2021-12-10T01:20:30Z",
       "side": 1,
       "message": "Maybe explain that it\u0027s this is offset by 32 from the previous operation (I think?)",
+      "range": {
+        "startLine": 189,
+        "startChar": 46,
+        "endLine": 189,
+        "endChar": 74
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b18b56f_e2e6369a",
+        "filename": "test/binarystore_unittest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done.\n\nActually, I am not 100% sure how this number came to be. I need to double check where the 2 came from.",
+      "parentUuid": "1f8ddf72_ee4816d0",
       "range": {
         "startLine": 189,
         "startChar": 46,
@@ -137,6 +233,54 @@
       "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "324a742a_1adf9e89",
+        "filename": "test/binarystore_unittest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df4e0f18_ed346ec2",
+      "range": {
+        "startLine": 190,
+        "startChar": 58,
+        "endLine": 191,
+        "endChar": 67
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec569c00_80095eef",
+        "filename": "test/binarystore_unittest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-15T05:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9690bf7a_493e1275",
+      "range": {
+        "startLine": 191,
+        "startChar": 50,
+        "endLine": 191,
+        "endChar": 52
+      },
+      "revId": "65a7a80e88c0eae3db399b47feb4bc966c97c0c6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
