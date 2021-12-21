@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dd2c522c_6de99f92",
+        "filename": "binarystore.hpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-21T22:45:33Z",
+      "side": 1,
+      "message": "the proto uses uint32_t in the definition, so I am matching that.",
+      "parentUuid": "19164bfb_d4f66ae8",
+      "range": {
+        "startLine": 47,
+        "startChar": 30,
+        "endLine": 47,
+        "endChar": 38
+      },
+      "revId": "ea6218df24d86a34abb32c1910ca4397448ebb47",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "292931d6_f0c9bb67",
         "filename": "test/binarystore_unittest.cpp",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "ea6218df24d86a34abb32c1910ca4397448ebb47",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c233e017_68679853",
+        "filename": "test/binarystore_unittest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2021-12-21T22:45:33Z",
+      "side": 1,
+      "message": "yeah, it should be 48 with 1 new data.\n\nI\u0027ll move it to above the successful write.",
+      "parentUuid": "292931d6_f0c9bb67",
+      "range": {
+        "startLine": 195,
+        "startChar": 45,
+        "endLine": 195,
+        "endChar": 47
+      },
+      "revId": "ea6218df24d86a34abb32c1910ca4397448ebb47",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4",
+      "unresolved": false
     }
   ]
 }
