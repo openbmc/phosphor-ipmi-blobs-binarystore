@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a16ae66_da761c78",
+        "filename": "src/meson.build",
+        "patchSetId": 13
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-08T01:09:43Z",
+      "side": 1,
+      "message": "you should set your editor to add a newline at the end of new files automatically",
+      "revId": "6f410eeb2a696ed5d57497b8c25d23b5162c945c",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
