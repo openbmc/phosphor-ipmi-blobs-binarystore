@@ -1,0 +1,8 @@
+Code-Review+2: Kun Yi <kunyi731@gmail.com>
+Code-Review+1: Brandon Kim <brandonkim@google.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Tue, 08 Feb 2022 00:07:45 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-ipmi-blobs-binarystore/+/50990
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
