@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e01cfe6a_9baff3a6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-08T01:04:19Z",
+      "side": 1,
+      "message": "Please remove this line from the commit message since it was split out",
+      "revId": "cd73cd10ebcdc68e84909972a4bd11acbedaeb62",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
