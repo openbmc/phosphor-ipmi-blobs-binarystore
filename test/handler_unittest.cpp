@@ -17,11 +17,8 @@
 
 using ::testing::_;
 using ::testing::AtLeast;
-using ::testing::ElementsAreArray;
-using ::testing::IsEmpty;
 using ::testing::Return;
 using ::testing::StrEq;
-using ::testing::StrNe;
 using ::testing::UnorderedElementsAreArray;
 
 using namespace std::string_literals;
