@@ -55,8 +55,8 @@ class BinaryStore : public BinaryStoreInterface
         }
     }
 
-    BinaryStore(std::unique_ptr<SysFile> file, bool readOnly = false,
-                std::optional<uint32_t> maxSize = std::nullopt) :
+    explicit BinaryStore(std::unique_ptr<SysFile> file, bool readOnly = false,
+                         std::optional<uint32_t> maxSize = std::nullopt) :
         readOnly_{readOnly},
         file_(std::move(file)), maxSize(maxSize)
     {

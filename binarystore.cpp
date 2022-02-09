@@ -159,10 +159,9 @@ std::vector<std::string> BinaryStore::getBlobIds() const
     std::vector<std::string> result;
     result.push_back(getBaseBlobId());
 
-    for (const auto& blob : blob_.blobs())
-    {
-        result.push_back(blob.blob_id());
-    }
+    std::transform(
+        blob_.blobs().begin(), blob_.blobs().end(), std::back_inserter(result),
+        [](const auto& blob) -> std::string { return blob.blob_id(); });
 
     return result;
 }
