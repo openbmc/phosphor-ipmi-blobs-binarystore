@@ -16,6 +16,24 @@
       "message": "Will submit this once the bitbake is converted to meson.",
       "revId": "5a004528de99ee88ba0d86f9b00198aaa2768e38",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dc607b5_dc5b9d50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-02-10T18:12:25Z",
+      "side": 1,
+      "message": "https://gerrit.openbmc-project.xyz/c/openbmc/openbmc/+/51047",
+      "parentUuid": "57702213_666f5861",
+      "revId": "5a004528de99ee88ba0d86f9b00198aaa2768e38",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
