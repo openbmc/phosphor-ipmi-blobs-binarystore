@@ -13,6 +13,7 @@ binarystoreblob_pre = declare_dependency(
 
 binarystoreblob_lib = library(
   'binarystore',
+  'main.cpp',
   'binarystore.cpp',
   'sys.cpp',
   'sys_file_impl.cpp',
@@ -21,7 +22,7 @@ binarystoreblob_lib = library(
   implicit_include_directories: false,
   dependencies: binarystoreblob_pre,
   install: true,
-  install_dir: get_option('libdir') / 'blob-ipmid'
+  install_dir: get_option('libdir') / 'ipmid-providers',
 )
 
 binarystoreblob_dep = declare_dependency(
