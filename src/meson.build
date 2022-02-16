@@ -12,7 +12,7 @@ binarystoreblob_pre = declare_dependency(
 )
 
 binarystoreblob_lib = library(
-  'binarystore',
+  'binarystoreblob',
   'main.cpp',
   'binarystore.cpp',
   'sys.cpp',
@@ -21,13 +21,20 @@ binarystoreblob_lib = library(
   src_pb,
   implicit_include_directories: false,
   dependencies: binarystoreblob_pre,
-  install: true,
-  install_dir: get_option('libdir') / 'blob-ipmid'
 )
 
 binarystoreblob_dep = declare_dependency(
   link_with: binarystoreblob_lib,
   dependencies: binarystoreblob_pre
+)
+
+library(
+  'binarystore',
+  'main.cpp',
+  implicit_include_directories: false,
+  dependencies: binarystoreblob_dep,
+  install: true,
+  install_dir: get_option('libdir') / 'blob-ipmid'
 )
 
 if not get_option('blobtool').disabled()
