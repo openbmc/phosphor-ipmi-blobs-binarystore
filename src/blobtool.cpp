@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
             }
 
             auto file = std::make_unique<binstore::SysFileImpl>(
-                config.sysFilePath, config.offsetBytes);
+                config.sysFilePath, *config.offsetBytes);
 
             auto store = binstore::BinaryStore::createFromConfig(
                 config.blobBaseId, std::move(file));
