@@ -65,10 +65,10 @@ std::unique_ptr<blobs::GenericBlobInterface> createHandler()
                          entry("BASE_ID=%s", config.blobBaseId.c_str()),
                          entry("FILE=%s", config.sysFilePath.c_str()),
                          entry("MAX_SIZE=%llx", static_cast<unsigned long long>(
-                                                    config.maxSizeBytes)));
+                                                    *config.maxSizeBytes)));
 
-        auto file = std::make_unique<binstore::SysFileImpl>(config.sysFilePath,
-                                                            config.offsetBytes);
+        auto file = std::make_unique<binstore::SysFileImpl>(
+            config.sysFilePath, *config.offsetBytes);
 
         handler->addNewBinaryStore(binstore::BinaryStore::createFromConfig(
             config.blobBaseId, std::move(file), config.maxSizeBytes));
