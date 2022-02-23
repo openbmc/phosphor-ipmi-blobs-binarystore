@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cb981b3_ba786145",
+        "filename": "src/meson.build",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-23T00:57:58Z",
+      "side": 1,
+      "message": "Why is this a library at all? You should be able to add the `sources` directly to the `declare_dependency` function",
+      "revId": "c95bd5910b6b5f1a5000ba6a85c5b320f5627890",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
