@@ -16,6 +16,24 @@
       "message": "Why is this a library at all? You should be able to add the `sources` directly to the `declare_dependency` function",
       "revId": "c95bd5910b6b5f1a5000ba6a85c5b320f5627890",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cf1ca71_7311535f",
+        "filename": "src/meson.build",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-02-23T00:59:28Z",
+      "side": 1,
+      "message": "It\u0027s a library so that you don\u0027t compile the intermediate files multiple times. This is basically equivalent to cc_library in bazel. We don\u0027t want to install it as dynamic if we only use it in one translation unit for better optimization.",
+      "parentUuid": "3cb981b3_ba786145",
+      "revId": "c95bd5910b6b5f1a5000ba6a85c5b320f5627890",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
