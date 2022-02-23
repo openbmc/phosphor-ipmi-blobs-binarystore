@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58fdbe7f_74241c97",
+        "filename": "src/blobtool.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-23T01:11:43Z",
+      "side": 1,
+      "message": "won\u0027t this be undefined behavior if offsetBytes isn\u0027t present?\n\nseems like 0 would be a reasonable default if it\u0027s not in the config file",
+      "range": {
+        "startLine": 170,
+        "startChar": 36,
+        "endLine": 170,
+        "endChar": 57
+      },
+      "revId": "da1e3e429588d32de748416adbebf3dd7cc963b6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8bf8d32_dffa0ee7",
+        "filename": "src/main.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-23T01:11:43Z",
+      "side": 1,
+      "message": "does createFromConfig know how to handle an std::optional?",
+      "range": {
+        "startLine": 73,
+        "startChar": 58,
+        "endLine": 73,
+        "endChar": 74
+      },
+      "revId": "da1e3e429588d32de748416adbebf3dd7cc963b6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c70c76bc_12ebdccd",
+        "filename": "test/parse_config_unittest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2022-02-23T01:11:43Z",
+      "side": 1,
+      "message": "should be reversed so you\u0027re not invoking undefined behavior (short circuit on nullopt instead)",
+      "revId": "da1e3e429588d32de748416adbebf3dd7cc963b6",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
