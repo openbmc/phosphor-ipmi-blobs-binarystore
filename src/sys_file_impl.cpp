@@ -25,7 +25,7 @@ SysFileImpl::SysFileImpl(const std::string& path, std::optional<size_t> offset,
     sys(sys)
 {
     fd_ = sys->open(path.c_str(), O_RDWR);
-    offset_ = offset ? *offset : 0;
+    offset_ = offset.value_or(0);
 
     if (fd_ < 0)
     {

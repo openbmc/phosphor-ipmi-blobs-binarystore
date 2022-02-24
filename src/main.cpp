@@ -65,9 +65,8 @@ std::unique_ptr<blobs::GenericBlobInterface> createHandler()
             "Loading from config with",
             entry("BASE_ID=%s", config.blobBaseId.c_str()),
             entry("FILE=%s", config.sysFilePath.c_str()),
-            entry("MAX_SIZE=%llx",
-                  static_cast<unsigned long long>(
-                      config.maxSizeBytes ? *config.maxSizeBytes : 0)));
+            entry("MAX_SIZE=%llx", static_cast<unsigned long long>(
+                                       config.maxSizeBytes.value_or(0))));
 
         auto file = std::make_unique<binstore::SysFileImpl>(config.sysFilePath,
                                                             config.offsetBytes);
