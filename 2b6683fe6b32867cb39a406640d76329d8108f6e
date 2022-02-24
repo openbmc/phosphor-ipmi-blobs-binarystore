@@ -18,6 +18,24 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32823c04_3faa3f5e",
+        "filename": "include/parse_config.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-02-24T23:54:41Z",
+      "side": 1,
+      "message": "Done.\n\nThanks.\n\nFixed in https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-ipmi-blobs-binarystore/+/51543",
+      "parentUuid": "581bc677_19c856bf",
+      "revId": "2b6683fe6b32867cb39a406640d76329d8108f6e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "401fb7e5_497ecc9d",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-02-24T17:32:06Z",
       "side": 1,
       "message": "nit: `config.maxSizeBytes.value_or(0)`",
+      "revId": "2b6683fe6b32867cb39a406640d76329d8108f6e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35cb65ca_7be140b2",
+        "filename": "src/main.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2022-02-24T23:54:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "401fb7e5_497ecc9d",
       "revId": "2b6683fe6b32867cb39a406640d76329d8108f6e",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
