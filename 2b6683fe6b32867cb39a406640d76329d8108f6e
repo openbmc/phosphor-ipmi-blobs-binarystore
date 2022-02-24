@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "581bc677_19c856bf",
+        "filename": "include/parse_config.hpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-02-24T17:32:06Z",
+      "side": 1,
+      "message": "nit: Could reduce to `j.at(\"offsetBytes\").get_to(config.offsetBytes.emplace())`",
+      "revId": "2b6683fe6b32867cb39a406640d76329d8108f6e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "401fb7e5_497ecc9d",
+        "filename": "src/main.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2022-02-24T17:32:06Z",
+      "side": 1,
+      "message": "nit: `config.maxSizeBytes.value_or(0)`",
+      "revId": "2b6683fe6b32867cb39a406640d76329d8108f6e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
