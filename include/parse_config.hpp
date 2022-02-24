@@ -31,16 +31,12 @@ static inline void parseFromConfigFile(const json& j, BinaryBlobConfig& config)
     j.at("sysFilePath").get_to(config.sysFilePath);
     if (j.contains("offsetBytes"))
     {
-        uint32_t val;
-        j.at("offsetBytes").get_to(val);
-        config.offsetBytes = val;
+        j.at("offsetBytes").get_to(config.offsetBytes.emplace())
     }
 
     if (j.contains("maxSizeBytes"))
     {
-        uint32_t val;
-        j.at("maxSizeBytes").get_to(val);
-        config.maxSizeBytes = val;
+        j.at("maxSizeBytes").get_to(config.maxSizeBytes.emplace())
     }
 }
 
