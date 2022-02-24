@@ -1,0 +1,7 @@
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: Benjamin Fair <benjaminfair@google.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Thu, 24 Feb 2022 08:20:48 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/c/openbmc/phosphor-ipmi-blobs-binarystore/+/51399
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
