@@ -83,8 +83,8 @@ bool BinaryStore::loadSerializedData()
         return true;
     }
 
-    log<level::NOTICE>("Try loading blob from persistent data",
-                       entry("BASE_ID=%s", baseBlobId_.c_str()));
+    log<level::DEBUG>("Try loading blob from persistent data",
+                      entry("BASE_ID=%s", baseBlobId_.c_str()));
     try
     {
         /* Parse length-prefixed format to protobuf */
@@ -222,8 +222,8 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
         currentBlob_->set_blob_id(blobId);
 
         commitState_ = CommitState::Dirty;
-        log<level::NOTICE>("Created new blob",
-                           entry("BLOB_ID=%s", blobId.c_str()));
+        log<level::DEBUG>("Created new blob",
+                          entry("BLOB_ID=%s", blobId.c_str()));
     }
 
     return true;
