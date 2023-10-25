@@ -13,6 +13,7 @@ tests = [
   'handler_readwrite_unittest',
   'handler_commit_unittest',
   'handler_stat_unittest',
+  'binarystore_unittest',
 ]
 
 foreach t : tests

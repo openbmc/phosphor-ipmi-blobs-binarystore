@@ -214,3 +214,19 @@ TEST_F(BinaryStoreTest, TestCreateFromFileExceedMaxSize)
     // commit()
     EXPECT_FALSE(store);
 }
+
+TEST_F(BinaryStoreTest, TestGetBlobIdsWithDeleteBlob)
+{
+    auto testDataFile = createBlobStorage(inputProto);
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/blob/my-test", std::move(testDataFile));
+    EXPECT_THAT(store->getBlobIds(),
+                UnorderedElementsAre("/blob/my-test", "/blob/my-test/0",
+                                     "/blob/my-test/1", "/blob/my-test/2",
+                                     "/blob/my-test/3"));
+    EXPECT_TRUE(store->deleteBlob("/blob/my-test/2"));
+    EXPECT_FALSE(store->deleteBlob("/blob/my-test/4"));
+    EXPECT_THAT(store->getBlobIds(),
+                UnorderedElementsAre("/blob/my-test", "/blob/my-test/0",
+                                     "/blob/my-test/1", "/blob/my-test/3"));
+}

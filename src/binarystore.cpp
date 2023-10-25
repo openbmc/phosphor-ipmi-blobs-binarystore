@@ -229,9 +229,28 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     return true;
 }
 
-bool BinaryStore::deleteBlob(const std::string&)
+bool BinaryStore::deleteBlob(const std::string& blobId)
 {
-    return false;
+    if (readOnly_)
+    {
+        return false;
+    }
+
+    auto blobsPtr = blob_.mutable_blobs();
+    auto blobIt =
+        std::find_if(blobsPtr->begin(), blobsPtr->end(),
+                     [&](const auto& b) { return b.blob_id() == blobId; });
+
+    if (blobIt == blobsPtr->end())
+    {
+        return false;
+    }
+    if (currentBlob_ == &(*blobIt))
+    {
+        currentBlob_ = nullptr;
+    }
+    blobsPtr->erase(blobIt);
+    return true;
 }
 
 std::vector<uint8_t> BinaryStore::read(uint32_t offset, uint32_t requestedSize)
