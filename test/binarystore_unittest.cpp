@@ -53,14 +53,13 @@ class SysFileBuf : public binstore::SysFile
 
     size_t readToBuf(size_t pos, size_t count, char* buf) const override
     {
-        std::cout << "Read " << count << " bytes at " << pos << std::endl;
+        stdplus::print(stderr, "Read {} bytes at {}\n", count, pos);
         return data_->copy(buf, count, pos);
     }
 
     std::string readAsStr(size_t pos, size_t count) const override
     {
-        std::cout << "Read as str " << count << " bytes at " << pos
-                  << std::endl;
+        stdplus::print(stderr, "Read as str {} bytes at {}\n", count, pos);
         return data_->substr(pos, count);
     }
 
