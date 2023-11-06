@@ -3,6 +3,7 @@ binarystoreblob_pre = declare_dependency(
   dependencies: [
     dependency('phosphor-ipmi-blobs'),
     dependency('phosphor-logging'),
+    dependency('stdplus'),
     binaryblobproto_dep,
   ])
 

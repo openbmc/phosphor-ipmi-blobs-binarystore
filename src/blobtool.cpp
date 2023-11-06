@@ -6,8 +6,8 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include <nlohmann/json.hpp>
+#include <stdplus/print.hpp>
 
 constexpr auto defaultBlobConfigPath = "/usr/share/binaryblob/config.json";
 
@@ -28,21 +28,21 @@ struct BlobToolConfig
 
 void printUsage(const BlobToolConfig& cfg)
 {
-    std::cout
-        << "Usage: \n"
-        << cfg.programName << " [OPTIONS]\n"
-        << "\t--list\t\tList all supported blobs. This is a default.\n"
-        << "\t--read\t\tRead blob specified in --blob argument"
-           " (which becomes mandatory).\n"
-        << "\t--config\tFILENAME\tPath to the configuration file. The default "
-           "is /usr/share/binaryblob/config.json.\n"
-        << "\t--binary-store\tFILENAME\tPath to the binary storage. If "
-           "specified,"
-           "configuration file is not used.\n"
-        << "\t--blob\tSTRING\tThe name of the blob to read.\n"
-        << "\t--offset\tNUMBER\tThe offset in the binary store file, where"
-           " the binary store actually starts.\n"
-        << "\t--help\t\tPrint this help and exit\n";
+    stdplus::print(stderr,
+                   "Usage: \n"
+                   "{} [OPTIONS]\n"
+                   "\t--list\t\tList all supported blobs. This is a default.\n"
+                   "\t--read\t\tRead blob specified in --blob argument (which "
+                   "becomes mandatory).\n"
+                   "\t--config\tFILENAME\tPath to the configuration file. The "
+                   "default is /usr/share/binaryblob/config.json.\n"
+                   "\t--binary-store\tFILENAME\tPath to the binary storage. If "
+                   "specified, configuration file is not used.\n"
+                   "\t--blob\tSTRING\tThe name of the blob to read.\n"
+                   "\t--offset\tNUMBER\tThe offset in the binary store file, "
+                   "where the binary store actually starts.\n"
+                   "\t--help\t\tPrint this help and exit\n",
+                   cfg.programName);
 }
 
 bool parseOptions(int argc, char* argv[], BlobToolConfig& cfg)
@@ -118,8 +118,8 @@ int main(int argc, char* argv[])
             toolConfig.binStore, toolConfig.offsetBytes);
         if (!file)
         {
-            std::cerr << "Can't open binary store " << toolConfig.binStore
-                      << std::endl;
+            stdplus::print(stderr, "Can't open binary store {}\n",
+                           toolConfig.binStore);
             printUsage(toolConfig);
             return 1;
         }
@@ -135,8 +135,8 @@ int main(int argc, char* argv[])
 
         if (!input.good())
         {
-            std::cerr << "Config file not found: " << toolConfig.configPath
-                      << std::endl;
+            stdplus::print(stderr, "Config file not found:{}\n",
+                           toolConfig.configPath);
             return 1;
         }
 
@@ -146,8 +146,8 @@ int main(int argc, char* argv[])
         }
         catch (const std::exception& e)
         {
-            std::cerr << "Failed to parse config into json: " << std::endl
-                      << e.what() << std::endl;
+            stdplus::print(stderr, "Failed to parse config into json:\n{}\n",
+                           e.what());
             return 1;
         }
 
@@ -160,9 +160,9 @@ int main(int argc, char* argv[])
             }
             catch (const std::exception& e)
             {
-                std::cerr << "Encountered error when parsing config file:"
-                          << std::endl
-                          << e.what() << std::endl;
+                stdplus::print(
+                    stderr, "Encountered error when parsing config file:\n{}\n",
+                    e.what());
                 return 1;
             }
 
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
 
     if (toolConfig.action == BlobToolConfig::Action::LIST)
     {
-        std::cout << "Supported Blobs: " << std::endl;
+        stdplus::print(stderr, "Supported Blobs: \n");
         for (const auto& store : stores)
         {
             const auto blobIds = store->getBlobIds();
@@ -190,8 +190,8 @@ int main(int argc, char* argv[])
     {
         if (toolConfig.blobName.empty())
         {
-            std::cerr << "Must specify the name of the blob to read."
-                      << std::endl;
+            stdplus::print(stderr,
+                           "Must specify the name of the blob to read.\n");
             printUsage(toolConfig);
             return 1;
         }
@@ -209,8 +209,8 @@ int main(int argc, char* argv[])
                 const auto blobData = store->readBlob(toolConfig.blobName);
                 if (blobData.empty())
                 {
-                    std::cerr << "No data read from " << store->getBaseBlobId()
-                              << std::endl;
+                    stdplus::print(stderr, "No data read from {}\n",
+                                   store->getBaseBlobId());
                     continue;
                 }
 
@@ -228,8 +228,7 @@ int main(int argc, char* argv[])
 
         if (!blobFound)
         {
-            std::cerr << "Blob " << toolConfig.blobName << " not found."
-                      << std::endl;
+            stdplus::print(stderr, "Blob {} not found.\n", toolConfig.blobName);
             return 1;
         }
     }
