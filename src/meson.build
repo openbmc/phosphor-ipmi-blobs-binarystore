@@ -30,7 +30,7 @@ shared_module(
   install: true,
   install_dir: get_option('libdir') / 'blob-ipmid')
 
-if not get_option('blobtool').disabled()
+if get_option('blobtool').allowed()
   executable(
     'blobtool',
     'blobtool.cpp',
