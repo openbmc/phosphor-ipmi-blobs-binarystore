@@ -6,6 +6,7 @@ test_dep = declare_dependency(
   dependencies: [gtest, gmock])
 
 tests = [
+  'binarystore_unittest',
   'parse_config_unittest',
   'sys_file_unittest',
   'handler_unittest',
