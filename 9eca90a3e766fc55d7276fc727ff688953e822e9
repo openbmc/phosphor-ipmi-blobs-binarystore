@@ -24,6 +24,30 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d445d6b_595bdc34",
+        "filename": "service/binarystore-migration.service",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2023-11-07T17:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f216f2e7_8f0a01b0",
+      "range": {
+        "startLine": 6,
+        "startChar": 10,
+        "endLine": 6,
+        "endChar": 18
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eeecc61e_16bbfd21",
@@ -47,6 +71,30 @@
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e04eb931_8f202e5c",
+        "filename": "src/binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2023-11-07T17:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeecc61e_16bbfd21",
+      "range": {
+        "startLine": 140,
+        "startChar": 13,
+        "endLine": 140,
+        "endChar": 42
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca9a3c2a_b14c9abd",
@@ -60,6 +108,30 @@
       "writtenOn": "2023-11-07T10:34:02Z",
       "side": 1,
       "message": "Please add the new option to the usage info",
+      "range": {
+        "startLine": 30,
+        "startChar": 5,
+        "endLine": 30,
+        "endChar": 15
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "603b8a5c_caac2169",
+        "filename": "src/blobtool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2023-11-07T17:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca9a3c2a_b14c9abd",
       "range": {
         "startLine": 30,
         "startChar": 5,
