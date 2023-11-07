@@ -13,6 +13,7 @@ project(
 subdir('proto')
 subdir('include')
 subdir('src')
+subdir('service')
 
 if not get_option('tests').disabled()
   subdir('test')

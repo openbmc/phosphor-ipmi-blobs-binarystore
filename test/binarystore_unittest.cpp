@@ -119,6 +119,20 @@ TEST_F(BinaryStoreTest, SimpleLoad)
     EXPECT_EQ(initialData, blobDataStorage);
 }
 
+TEST_F(BinaryStoreTest, SimpleLoadWithAlias)
+{
+    auto testDataFile = createBlobStorage(inputProto);
+    auto initialData = blobDataStorage;
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/blob/my-test-2", std::move(testDataFile), std::nullopt,
+        "/blob/my-test");
+    EXPECT_THAT(store->getBlobIds(),
+                UnorderedElementsAre("/blob/my-test-2", "/blob/my-test-2/0",
+                                     "/blob/my-test-2/1", "/blob/my-test-2/2",
+                                     "/blob/my-test-2/3"));
+    EXPECT_EQ(initialData, blobDataStorage);
+}
+
 TEST_F(BinaryStoreTest, TestCreateFromFile)
 {
     auto testDataFile = createBlobStorage(inputProto);
@@ -133,6 +147,24 @@ TEST_F(BinaryStoreTest, TestCreateFromFile)
                                      "/blob/my-test/3"));
     // Check that the storage has not changed
     EXPECT_EQ(initialData, blobDataStorage);
+}
+
+TEST_F(BinaryStoreTest, TestSetBaseBlobId)
+{
+    auto testDataFile = createBlobStorage(inputProto);
+    auto initialData = blobDataStorage;
+    auto store =
+        binstore::BinaryStore::createFromFile(std::move(testDataFile), true);
+    ASSERT_TRUE(store);
+    EXPECT_EQ("/blob/my-test", store->getBaseBlobId());
+    EXPECT_TRUE(store->setBaseBlobId("/blob/my-test-1"));
+    EXPECT_EQ("/blob/my-test-1", store->getBaseBlobId());
+    EXPECT_THAT(store->getBlobIds(),
+                UnorderedElementsAre("/blob/my-test-1", "/blob/my-test-1/0",
+                                     "/blob/my-test-1/1", "/blob/my-test-1/2",
+                                     "/blob/my-test-1/3"));
+    // Check that the storage has changed
+    EXPECT_NE(initialData, blobDataStorage);
 }
 
 TEST_F(BinaryStoreTest, TestReadBlob)

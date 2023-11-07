@@ -23,6 +23,7 @@ struct BlobToolConfig
         HELP,
         LIST,
         READ,
+        MIGRATE,
     } action = Action::LIST;
 } toolConfig;
 
@@ -53,6 +54,7 @@ bool parseOptions(int argc, char* argv[], BlobToolConfig& cfg)
         {"help", no_argument, 0, 'h'},
         {"list", no_argument, 0, 'l'},
         {"read", no_argument, 0, 'r'},
+        {"migrate", no_argument, 0, 'm'},
         {"config", required_argument, 0, 'c'},
         {"binary-store", required_argument, 0, 's'},
         {"blob", required_argument, 0, 'b'},
@@ -61,7 +63,6 @@ bool parseOptions(int argc, char* argv[], BlobToolConfig& cfg)
     };
 
     int optionIndex = 0;
-    std::string configPath = defaultBlobConfigPath;
     bool res = true;
     while (1)
     {
@@ -170,9 +171,28 @@ int main(int argc, char* argv[])
                 config.sysFilePath, config.offsetBytes);
 
             auto store = binstore::BinaryStore::createFromConfig(
-                config.blobBaseId, std::move(file));
-            stores.push_back(std::move(store));
+                config.blobBaseId, std::move(file), config.maxSizeBytes,
+                config.aliasBlobBaseId);
+
+            if (toolConfig.action == BlobToolConfig::Action::MIGRATE)
+            {
+                if (config.migrateToAlias && config.aliasBlobBaseId.has_value())
+                {
+                    store->setBaseBlobId(config.aliasBlobBaseId.value());
+                }
+            }
+            else
+            {
+                stores.push_back(std::move(store));
+            }
         }
+    }
+
+    if (toolConfig.action == BlobToolConfig::Action::MIGRATE)
+    {
+        stdplus::print(stderr,
+                       "Migrated all BinaryStore back to configured Alias");
+        return 0;
     }
 
     if (toolConfig.action == BlobToolConfig::Action::LIST)
@@ -185,8 +205,9 @@ int main(int argc, char* argv[])
                 blobIds.begin(), blobIds.end(),
                 std::ostream_iterator<decltype(blobIds[0])>(std::cout, "\n"));
         }
+        return 0;
     }
-    else if (toolConfig.action == BlobToolConfig::Action::READ)
+    if (toolConfig.action == BlobToolConfig::Action::READ)
     {
         if (toolConfig.blobName.empty())
         {
@@ -231,6 +252,7 @@ int main(int argc, char* argv[])
             stdplus::print(stderr, "Blob {} not found.\n", toolConfig.blobName);
             return 1;
         }
+        return 0;
     }
 
     return 0;

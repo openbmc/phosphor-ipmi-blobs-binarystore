@@ -74,6 +74,7 @@ class BinaryStore : public BinaryStoreInterface
     BinaryStore& operator=(BinaryStore&&) = default;
 
     std::string getBaseBlobId() const override;
+    bool setBaseBlobId(const std::string& baseBlobId) override;
     std::vector<std::string> getBlobIds() const override;
     bool openOrCreateBlob(const std::string& blobId, uint16_t flags) override;
     bool deleteBlob(const std::string& blobId) override;
@@ -91,10 +92,10 @@ class BinaryStore : public BinaryStoreInterface
      * @returns unique_ptr to constructed BinaryStore. Caller should take
      *     ownership of the instance.
      */
-    static std::unique_ptr<BinaryStoreInterface>
-        createFromConfig(const std::string& baseBlobId,
-                         std::unique_ptr<SysFile> file,
-                         std::optional<uint32_t> maxSize = std::nullopt);
+    static std::unique_ptr<BinaryStoreInterface> createFromConfig(
+        const std::string& baseBlobId, std::unique_ptr<SysFile> file,
+        std::optional<uint32_t> maxSize = std::nullopt,
+        std::optional<std::string> aliasBlobBaseId = std::nullopt);
 
     /**
      * Helper factory method to create a BinaryStore instance
@@ -111,7 +112,8 @@ class BinaryStore : public BinaryStoreInterface
   private:
     /* Load the serialized data from sysfile if commit state is dirty.
      * Returns False if encountered error when loading */
-    bool loadSerializedData();
+    bool loadSerializedData(
+        std::optional<std::string> aliasBlobBaseId = std::nullopt);
 
     std::string baseBlobId_;
     binaryblobproto::BinaryBlobBase blob_;

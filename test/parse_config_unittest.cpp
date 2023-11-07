@@ -26,7 +26,9 @@ TEST(ParseConfigTest, TestSimpleConfig)
       "blobBaseId": "/test/",
       "sysFilePath": "/sys/fake/path",
       "offsetBytes": 32,
-      "maxSizeBytes": 2
+      "maxSizeBytes": 2,
+      "aliasBlobBaseId": "/test2/",
+      "migrateToAlias": true
     }
   )"_json;
 
@@ -37,6 +39,8 @@ TEST(ParseConfigTest, TestSimpleConfig)
     EXPECT_EQ(config.sysFilePath, "/sys/fake/path");
     EXPECT_EQ(config.offsetBytes, 32);
     EXPECT_EQ(config.maxSizeBytes, 2);
+    EXPECT_EQ(config.aliasBlobBaseId, "/test2/");
+    EXPECT_TRUE(config.migrateToAlias);
 }
 
 TEST(ParseConfigTest, TestConfigArray)
