@@ -30,6 +30,13 @@ class BinaryStoreInterface
     virtual std::string getBaseBlobId() const = 0;
 
     /**
+     * Set the base blob id
+     * @param baseBlobId: The blob id to update to.
+     * @returns true if the binary store is updated with the new baseBlobId
+     */
+    virtual bool setBaseBlobId(const std::string& baseBlobId) = 0;
+
+    /**
      * @returns List of all open blob IDs, plus the base.
      */
     virtual std::vector<std::string> getBlobIds() const = 0;

@@ -13,10 +13,12 @@ namespace conf
 
 struct BinaryBlobConfig
 {
-    std::string blobBaseId;               // Required
-    std::string sysFilePath;              // Required
-    std::optional<uint32_t> offsetBytes;  // Optional
-    std::optional<uint32_t> maxSizeBytes; // Optional
+    std::string blobBaseId;                     // Required
+    std::string sysFilePath;                    // Required
+    std::optional<uint32_t> offsetBytes;        // Optional
+    std::optional<uint32_t> maxSizeBytes;       // Optional
+    std::optional<std::string> aliasBlobBaseId; // Optional
+    bool migrateToAlias = false;                // Optional
 };
 
 /**
@@ -37,6 +39,16 @@ static inline void parseFromConfigFile(const json& j, BinaryBlobConfig& config)
     if (j.contains("maxSizeBytes"))
     {
         j.at("maxSizeBytes").get_to(config.maxSizeBytes.emplace());
+    }
+
+    if (j.contains("aliasBlobBaseId"))
+    {
+        j.at("aliasBlobBaseId").get_to(config.aliasBlobBaseId.emplace());
+    }
+
+    if (j.contains("migrateToAlias"))
+    {
+        config.migrateToAlias = j.at("migrateToAlias");
     }
 }
 

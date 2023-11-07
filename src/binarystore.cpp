@@ -29,10 +29,9 @@ namespace binstore
 
 using namespace phosphor::logging;
 
-std::unique_ptr<BinaryStoreInterface>
-    BinaryStore::createFromConfig(const std::string& baseBlobId,
-                                  std::unique_ptr<SysFile> file,
-                                  std::optional<uint32_t> maxSize)
+std::unique_ptr<BinaryStoreInterface> BinaryStore::createFromConfig(
+    const std::string& baseBlobId, std::unique_ptr<SysFile> file,
+    std::optional<uint32_t> maxSize, std::optional<std::string> aliasBlobBaseId)
 {
     if (baseBlobId.empty() || !file)
     {
@@ -44,7 +43,7 @@ std::unique_ptr<BinaryStoreInterface>
     auto store =
         std::make_unique<BinaryStore>(baseBlobId, std::move(file), maxSize);
 
-    if (!store->loadSerializedData())
+    if (!store->loadSerializedData(aliasBlobBaseId))
     {
         return nullptr;
     }
@@ -73,7 +72,7 @@ std::unique_ptr<BinaryStoreInterface>
     return store;
 }
 
-bool BinaryStore::loadSerializedData()
+bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
 {
     /* Load blob from sysfile if we know it might not match what we have.
      * Note it will overwrite existing unsaved data per design. */
@@ -128,6 +127,17 @@ bool BinaryStore::loadSerializedData()
         return true;
     }
 
+    std::string alias = aliasBlobBaseId.value_or("");
+    if (blob_.blob_base_id() == alias)
+    {
+        log<level::WARNING>("Alias blob id, rename blob id...",
+                            entry("LOADED=%s", alias.c_str()),
+                            entry("RENAMED=%s", baseBlobId_.c_str()));
+        std::string tmpBlobId = baseBlobId_;
+        baseBlobId_ = alias;
+        setBaseBlobId(tmpBlobId);
+        return this->commit();
+    }
     if (blob_.blob_base_id() != baseBlobId_ && !readOnly_)
     {
         /* Uh oh, stale data loaded. Clean it and commit. */
@@ -152,6 +162,29 @@ std::string BinaryStore::getBaseBlobId() const
     }
 
     return blob_.blob_base_id();
+}
+
+bool BinaryStore::setBaseBlobId(const std::string& baseBlobId)
+{
+    if (baseBlobId_.empty())
+    {
+        baseBlobId_ = blob_.blob_base_id();
+    }
+
+    std::string oldBlobId = baseBlobId_;
+    size_t oldPrefixIndex = baseBlobId_.size();
+    baseBlobId_ = baseBlobId;
+    blob_.set_blob_base_id(baseBlobId_);
+    auto blobsPtr = blob_.mutable_blobs();
+    for (auto blob = blobsPtr->begin(); blob != blobsPtr->end(); blob++)
+    {
+        const std::string& blodId = blob->blob_id();
+        if (blodId.starts_with(oldBlobId))
+        {
+            blob->set_blob_id(baseBlobId_ + blodId.substr(oldPrefixIndex));
+        }
+    }
+    return this->commit();
 }
 
 std::vector<std::string> BinaryStore::getBlobIds() const
