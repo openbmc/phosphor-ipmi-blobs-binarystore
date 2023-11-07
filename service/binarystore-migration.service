@@ -1,0 +1,7 @@
+[Unit]
+Description=Migrate Binary Stroage Data
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/blobtool -m
+
