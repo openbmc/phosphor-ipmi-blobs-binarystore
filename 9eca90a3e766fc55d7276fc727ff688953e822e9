@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f216f2e7_8f0a01b0",
+        "filename": "service/binarystore-migration.service",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2023-11-07T10:34:02Z",
+      "side": 1,
+      "message": "should probably be an absolute path",
+      "range": {
+        "startLine": 6,
+        "startChar": 10,
+        "endLine": 6,
+        "endChar": 18
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eeecc61e_16bbfd21",
+        "filename": "src/binarystore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2023-11-07T10:34:02Z",
+      "side": 1,
+      "message": "seems redundant since this is in the \u0027else\u0027 block",
+      "range": {
+        "startLine": 140,
+        "startChar": 13,
+        "endLine": 140,
+        "endChar": 42
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca9a3c2a_b14c9abd",
+        "filename": "src/blobtool.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000233
+      },
+      "writtenOn": "2023-11-07T10:34:02Z",
+      "side": 1,
+      "message": "Please add the new option to the usage info",
+      "range": {
+        "startLine": 30,
+        "startChar": 5,
+        "endLine": 30,
+        "endChar": 15
+      },
+      "revId": "9eca90a3e766fc55d7276fc727ff688953e822e9",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
