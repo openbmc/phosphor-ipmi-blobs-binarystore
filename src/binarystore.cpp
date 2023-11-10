@@ -40,10 +40,10 @@ std::unique_ptr<BinaryStoreInterface> BinaryStore::createFromConfig(
         return nullptr;
     }
 
-    auto store =
-        std::make_unique<BinaryStore>(baseBlobId, std::move(file), maxSize);
+    auto store = std::make_unique<BinaryStore>(baseBlobId, std::move(file),
+                                               maxSize, aliasBlobBaseId);
 
-    if (!store->loadSerializedData(aliasBlobBaseId))
+    if (!store->loadSerializedData())
     {
         return nullptr;
     }
@@ -72,7 +72,7 @@ std::unique_ptr<BinaryStoreInterface>
     return store;
 }
 
-bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
+bool BinaryStore::loadSerializedData()
 {
     /* Load blob from sysfile if we know it might not match what we have.
      * Note it will overwrite existing unsaved data per design. */
@@ -135,7 +135,11 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
                             entry("RENAMED=%s", baseBlobId_.c_str()));
         std::string tmpBlobId = baseBlobId_;
         baseBlobId_ = alias;
-        return setBaseBlobId(tmpBlobId);
+        if (init && !readOnly_)
+        {
+            init = false;
+            return setBaseBlobId(tmpBlobId);
+        }
     }
     if (blob_.blob_base_id() != baseBlobId_ && !readOnly_)
     {
