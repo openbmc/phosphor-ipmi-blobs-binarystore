@@ -44,9 +44,11 @@ class BinaryStore : public BinaryStoreInterface
 
     BinaryStore() = delete;
     BinaryStore(const std::string& baseBlobId, std::unique_ptr<SysFile> file,
-                std::optional<uint32_t> maxSize = std::nullopt) :
+                std::optional<uint32_t> maxSize = std::nullopt,
+                std::optional<std::string> aliasBlobBaseId = std::nullopt) :
         baseBlobId_(baseBlobId),
-        file_(std::move(file)), maxSize(maxSize)
+        file_(std::move(file)), maxSize(maxSize),
+        aliasBlobBaseId(aliasBlobBaseId)
     {
         blob_.set_blob_base_id(baseBlobId_);
         if (maxSize)
@@ -112,8 +114,7 @@ class BinaryStore : public BinaryStoreInterface
   private:
     /* Load the serialized data from sysfile if commit state is dirty.
      * Returns False if encountered error when loading */
-    bool loadSerializedData(
-        std::optional<std::string> aliasBlobBaseId = std::nullopt);
+    bool loadSerializedData();
 
     std::string baseBlobId_;
     binaryblobproto::BinaryBlobBase blob_;
@@ -125,6 +126,8 @@ class BinaryStore : public BinaryStoreInterface
     std::unique_ptr<SysFile> file_ = nullptr;
     CommitState commitState_ = CommitState::Dirty;
     std::optional<uint32_t> maxSize;
+    std::optional<std::string> aliasBlobBaseId;
+    bool init = true;
 };
 
 } // namespace binstore
