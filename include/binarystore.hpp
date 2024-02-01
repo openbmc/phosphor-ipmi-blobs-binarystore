@@ -7,12 +7,11 @@
 
 #include <blobs-ipmid/blobs.hpp>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-
-#include "binaryblob.pb.h"
 
 using std::size_t;
 using std::uint16_t;
@@ -48,7 +47,6 @@ class BinaryStore : public BinaryStoreInterface
         baseBlobId_(baseBlobId),
         file_(std::move(file)), maxSize(maxSize)
     {
-        blob_.set_blob_base_id(baseBlobId_);
     }
 
     BinaryStore(std::unique_ptr<SysFile> file, bool readOnly = false,
@@ -107,9 +105,8 @@ class BinaryStore : public BinaryStoreInterface
     bool loadSerializedData(
         std::optional<std::string> aliasBlobBaseId = std::nullopt);
 
-    std::string baseBlobId_;
-    binaryblobproto::BinaryBlobBase blob_;
-    binaryblobproto::BinaryBlob* currentBlob_ = nullptr;
+    std::map<std::string, std::vector<std::uint8_t>> blobs_;
+    std::string baseBlobId_, currentBlob_;
     /* True if current blob is writable */
     bool writable_ = false;
     /* True if the entire store (not just individual blobs) is read only */

@@ -7,8 +7,6 @@
 #include <memory>
 #include <string>
 
-#include "binaryblob.pb.h"
-
 #include <gtest/gtest.h>
 
 using ::testing::Contains;

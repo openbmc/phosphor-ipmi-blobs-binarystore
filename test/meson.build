@@ -1,10 +1,6 @@
 gtest = dependency('gtest', main: true, disabler: true, required: get_option('tests'))
 gmock = dependency('gmock', disabler: true, required: get_option('tests'))
 
-test_dep = declare_dependency(
-  include_directories: include_directories('.'),
-  dependencies: [gtest, gmock])
-
 tests = [
   'binarystore_unittest',
   'parse_config_unittest',
@@ -23,5 +19,5 @@ foreach t : tests
       t.underscorify(),
       t + '.cpp',
       implicit_include_directories: false,
-      dependencies: [binarystoreblob_dep, test_dep]))
+      dependencies: [binarystoreblob_dep, binaryblob_proto_dep, gtest, gmock]))
 endforeach

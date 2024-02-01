@@ -2,6 +2,8 @@
 
 #include "sys_file.hpp"
 
+#include <pb_decode.h>
+#include <pb_encode.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -10,13 +12,15 @@
 #include <boost/endian/arithmetic.hpp>
 #include <cstdint>
 #include <ipmid/handler.hpp>
+#include <map>
 #include <memory>
 #include <optional>
 #include <phosphor-logging/elog.hpp>
+#include <stdplus/str/cat.hpp>
 #include <string>
 #include <vector>
 
-#include "binaryblob.pb.h"
+#include "binaryblob.pb.n.h"
 
 using std::size_t;
 using std::uint16_t;
@@ -72,6 +76,39 @@ std::unique_ptr<BinaryStoreInterface>
     return store;
 }
 
+template <typename S>
+static constexpr auto pbDecodeStr = [](pb_istream_t* stream,
+                                       const pb_field_iter_t*,
+                                       void** arg) noexcept {
+    static_assert(sizeof(*std::declval<S>().data()) == sizeof(pb_byte_t));
+    auto& s = *reinterpret_cast<S*>(*arg);
+    s.resize(stream->bytes_left);
+    return pb_read(stream, reinterpret_cast<pb_byte_t*>(s.data()), s.size());
+};
+
+template <typename T>
+static pb_callback_t pbStrDecoder(T& t) noexcept
+{
+    return {{.decode = pbDecodeStr<T>}, &t};
+}
+
+template <typename S>
+static constexpr auto pbEncodeStr = [](pb_ostream_t* stream,
+                                       const pb_field_iter_t* field,
+                                       void* const* arg) noexcept {
+    static_assert(sizeof(*std::declval<S>().data()) == sizeof(pb_byte_t));
+    const auto& s = *reinterpret_cast<const S*>(*arg);
+    return pb_encode_tag_for_field(stream, field) &&
+           pb_encode_string(
+               stream, reinterpret_cast<const pb_byte_t*>(s.data()), s.size());
+};
+
+template <typename T>
+static pb_callback_t pbStrEncoder(const T& t) noexcept
+{
+    return {{.encode = pbEncodeStr<T>}, const_cast<T*>(&t)};
+}
+
 bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
 {
     /* Load blob from sysfile if we know it might not match what we have.
@@ -84,13 +121,42 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
 
     log<level::NOTICE>("Try loading blob from persistent data",
                        entry("BASE_ID=%s", baseBlobId_.c_str()));
+    std::string protoBlobId;
+    static constexpr auto blobcb = [](pb_istream_t* stream,
+                                      const pb_field_iter_t*,
+                                      void** arg) noexcept {
+        std::string id;
+        std::vector<std::uint8_t> data;
+        binstore_binaryblobproto_BinaryBlob msg = {
+            .blob_id = pbStrDecoder(id),
+            .data = pbStrDecoder(data),
+        };
+        if (!pb_decode(stream, binstore_binaryblobproto_BinaryBlob_fields,
+                       &msg))
+        {
+            return false;
+        }
+        reinterpret_cast<decltype(std::declval<BinaryStore>().blobs_)*>(*arg)
+            ->emplace(id, data);
+        return true;
+    };
+
     try
     {
         /* Parse length-prefixed format to protobuf */
         boost::endian::little_uint64_t size = 0;
         file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
+        auto proto = file_->readAsStr(sizeof(size), size);
 
-        if (!blob_.ParseFromString(file_->readAsStr(sizeof(uint64_t), size)))
+        auto ist = pb_istream_from_buffer(
+            reinterpret_cast<const pb_byte_t*>(proto.data()), proto.size());
+        binstore_binaryblobproto_BinaryBlobBase msg = {
+            .blob_base_id = pbStrDecoder(protoBlobId),
+            .blobs = {{.decode = blobcb}, &blobs_},
+        };
+        blobs_.clear(); // Purge old contents before new append during decode
+        if (!pb_decode(&ist, binstore_binaryblobproto_BinaryBlobBase_fields,
+                       &msg))
         {
             /* Fail to parse the data, which might mean no preexsiting blobs
              * and is a valid case to handle. Simply init an empty binstore. */
@@ -117,26 +183,28 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
         return true;
     }
 
-    std::string alias = aliasBlobBaseId.value_or("");
-    if (blob_.blob_base_id() == alias)
+    if (baseBlobId_.empty() && !protoBlobId.empty())
+    {
+        baseBlobId_ = std::move(protoBlobId);
+    }
+    else if (protoBlobId == aliasBlobBaseId)
     {
         log<level::WARNING>("Alias blob id, rename blob id...",
-                            entry("LOADED=%s", alias.c_str()),
+                            entry("LOADED=%s", protoBlobId.c_str()),
                             entry("RENAMED=%s", baseBlobId_.c_str()));
         std::string tmpBlobId = baseBlobId_;
-        baseBlobId_ = alias;
+        baseBlobId_ = *aliasBlobBaseId;
         return setBaseBlobId(tmpBlobId);
     }
-    if (blob_.blob_base_id() != baseBlobId_ && !readOnly_)
+    else if (protoBlobId != baseBlobId_ && !readOnly_)
     {
         /* Uh oh, stale data loaded. Clean it and commit. */
         // TODO: it might be safer to add an option in config to error out
         // instead of to overwrite.
         log<level::ERR>("Stale blob data, resetting internals...",
-                        entry("LOADED=%s", blob_.blob_base_id().c_str()),
+                        entry("LOADED=%s", protoBlobId.c_str()),
                         entry("EXPECTED=%s", baseBlobId_.c_str()));
-        blob_.Clear();
-        blob_.set_blob_base_id(baseBlobId_);
+        blobs_.clear();
         return this->commit();
     }
 
@@ -145,46 +213,36 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
 
 std::string BinaryStore::getBaseBlobId() const
 {
-    if (!baseBlobId_.empty())
-    {
-        return baseBlobId_;
-    }
-
-    return blob_.blob_base_id();
+    return baseBlobId_;
 }
 
 bool BinaryStore::setBaseBlobId(const std::string& baseBlobId)
 {
-    if (baseBlobId_.empty())
+    for (auto it = blobs_.begin(); it != blobs_.end();)
     {
-        baseBlobId_ = blob_.blob_base_id();
-    }
-
-    std::string oldBlobId = baseBlobId_;
-    size_t oldPrefixIndex = baseBlobId_.size();
-    baseBlobId_ = baseBlobId;
-    blob_.set_blob_base_id(baseBlobId_);
-    auto blobsPtr = blob_.mutable_blobs();
-    for (auto blob = blobsPtr->begin(); blob != blobsPtr->end(); blob++)
-    {
-        const std::string& blodId = blob->blob_id();
-        if (blodId.starts_with(oldBlobId))
+        auto curr = it++;
+        if (curr->first.starts_with(baseBlobId_))
         {
-            blob->set_blob_id(baseBlobId_ + blodId.substr(oldPrefixIndex));
+            auto nh = blobs_.extract(curr);
+            nh.key() = stdplus::strCat(
+                baseBlobId,
+                std::string_view(curr->first).substr(baseBlobId_.size()));
+            blobs_.insert(std::move(nh));
         }
     }
+    baseBlobId_ = baseBlobId;
     return this->commit();
 }
 
 std::vector<std::string> BinaryStore::getBlobIds() const
 {
     std::vector<std::string> result;
-    result.reserve(blob_.blobs().size() + 1);
+    result.reserve(blobs_.size() + 1);
     result.emplace_back(getBaseBlobId());
-    std::for_each(
-        blob_.blobs().begin(), blob_.blobs().end(),
-        [&result](const auto& blob) { result.emplace_back(blob.blob_id()); });
-
+    for (const auto& kv : blobs_)
+    {
+        result.emplace_back(kv.first);
+    }
     return result;
 }
 
@@ -197,10 +255,10 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
         return false;
     }
 
-    if (currentBlob_ && (currentBlob_->blob_id() != blobId))
+    if (!currentBlob_.empty())
     {
         log<level::ERR>("Already handling a different blob",
-                        entry("EXPECTED=%s", currentBlob_->blob_id().c_str()),
+                        entry("EXPECTED=%s", currentBlob_.c_str()),
                         entry("RECEIVED=%s", blobId.c_str()));
         return false;
     }
@@ -222,14 +280,9 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
 
     /* Iterate and find if there is an existing blob with this id.
      * blobsPtr points to a BinaryBlob container with STL-like semantics*/
-    auto blobsPtr = blob_.mutable_blobs();
-    auto blobIt =
-        std::find_if(blobsPtr->begin(), blobsPtr->end(),
-                     [&](const auto& b) { return b.blob_id() == blobId; });
-
-    if (blobIt != blobsPtr->end())
+    if (blobs_.find(blobId) != blobs_.end())
     {
-        currentBlob_ = &(*blobIt);
+        currentBlob_ = blobId;
         return true;
     }
 
@@ -238,16 +291,11 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     {
         return false;
     }
-    else
-    {
-        currentBlob_ = blob_.add_blobs();
-        currentBlob_->set_blob_id(blobId);
 
-        commitState_ = CommitState::Dirty;
-        log<level::NOTICE>("Created new blob",
-                           entry("BLOB_ID=%s", blobId.c_str()));
-    }
-
+    blobs_.emplace(blobId, std::vector<std::uint8_t>{});
+    currentBlob_ = blobId;
+    commitState_ = CommitState::Dirty;
+    log<level::NOTICE>("Created new blob", entry("BLOB_ID=%s", blobId.c_str()));
     return true;
 }
 
@@ -258,53 +306,84 @@ bool BinaryStore::deleteBlob(const std::string&)
 
 std::vector<uint8_t> BinaryStore::read(uint32_t offset, uint32_t requestedSize)
 {
-    std::vector<uint8_t> result;
-
-    if (!currentBlob_)
+    if (currentBlob_.empty())
     {
         log<level::ERR>("No open blob to read");
-        return result;
+        return {};
     }
 
-    auto dataPtr = currentBlob_->mutable_data();
+    const auto& data = blobs_.find(currentBlob_)->second;
 
     /* If it is out of bound, return empty vector */
-    if (offset >= dataPtr->size())
+    if (offset >= data.size())
     {
         log<level::ERR>("Read offset is beyond data size",
-                        entry("MAX_SIZE=0x%x", dataPtr->size()),
+                        entry("MAX_SIZE=0x%x", data.size()),
                         entry("RECEIVED_OFFSET=0x%x", offset));
-        return result;
+        return {};
     }
 
-    uint32_t requestedEndPos = offset + requestedSize;
-
-    result = std::vector<uint8_t>(
-        dataPtr->begin() + offset,
-        std::min(dataPtr->begin() + requestedEndPos, dataPtr->end()));
-    return result;
+    auto s = data.begin() + offset;
+    return {s, s + std::min<size_t>(requestedSize, data.size() - offset)};
 }
 
 std::vector<uint8_t> BinaryStore::readBlob(const std::string& blobId) const
 {
-    const auto blobs = blob_.blobs();
-    const auto blobIt =
-        std::find_if(blobs.begin(), blobs.end(),
-                     [&](const auto& b) { return b.blob_id() == blobId; });
-
-    if (blobIt == blobs.end())
+    const auto blobIt = blobs_.find(blobId);
+    if (blobIt == blobs_.end())
     {
         throw ipmi::HandlerCompletion(ipmi::ccUnspecifiedError);
     }
+    return blobIt->second;
+}
 
-    const auto blobData = blobIt->data();
+static binstore_binaryblobproto_BinaryBlobBase makeEncoder(
+    const std::string& base,
+    const std::map<std::string, std::vector<std::uint8_t>>& blobs) noexcept
+{
+    using Blobs = std::decay_t<decltype(blobs)>;
+    static constexpr auto blobcb = [](pb_ostream_t* stream,
+                                      const pb_field_iter_t* field,
+                                      void* const* arg) noexcept {
+        const auto& blobs = *reinterpret_cast<const Blobs*>(*arg);
+        for (const auto& [id, data] : blobs)
+        {
+            binstore_binaryblobproto_BinaryBlob msg = {
+                .blob_id = pbStrEncoder(id),
+                .data = pbStrEncoder(data),
+            };
+            if (!pb_encode_tag_for_field(stream, field) ||
+                !pb_encode_submessage(
+                    stream, binstore_binaryblobproto_BinaryBlob_fields, &msg))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
+    return {
+        .blob_base_id = pbStrEncoder(base),
+        .blobs = {{.encode = blobcb},
+                  const_cast<void*>(reinterpret_cast<const void*>(&blobs))},
+    };
+}
 
-    return std::vector<uint8_t>(blobData.begin(), blobData.end());
+static std::size_t
+    payloadCalcSize(const binstore_binaryblobproto_BinaryBlobBase& msg)
+{
+    pb_ostream_t nost = {};
+    if (!pb_encode(&nost, binstore_binaryblobproto_BinaryBlobBase_fields, &msg))
+    {
+        throw std::runtime_error(
+            std::format("Calculating msg size: {}", PB_GET_ERROR(&nost)));
+    }
+    // Proto is prepended with the size of the proto
+    return nost.bytes_written + sizeof(boost::endian::little_uint64_t);
 }
 
 bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
 {
-    if (!currentBlob_)
+    if (currentBlob_.empty())
     {
         log<level::ERR>("No open blob to write");
         return false;
@@ -316,37 +395,31 @@ bool BinaryStore::write(uint32_t offset, const std::vector<uint8_t>& data)
         return false;
     }
 
-    auto dataPtr = currentBlob_->mutable_data();
-
-    if (offset > dataPtr->size())
+    auto& bdata = blobs_.find(currentBlob_)->second;
+    if (offset > bdata.size())
     {
         log<level::ERR>("Write would leave a gap with undefined data. Return.");
         return false;
     }
 
-    bool needResize = offset + data.size() > dataPtr->size();
+    std::size_t oldsize = bdata.size(), reqSize = offset + data.size();
+    if (reqSize > bdata.size())
+    {
+        bdata.resize(reqSize);
+    }
 
-    // current size is the binary blob proto size + uint64 tracking the total
-    // size of the binary blob.
-    // currentSize = blob_size + x (uint64_t), where x = blob_size.
-    size_t currentSize = blob_.SerializeAsString().size() +
-                         sizeof(boost::endian::little_uint64_t);
-    size_t sizeDelta = needResize ? offset + data.size() - dataPtr->size() : 0;
-
-    if (maxSize && currentSize + sizeDelta > *maxSize)
+    if (payloadCalcSize(makeEncoder(baseBlobId_, blobs_)) >
+        maxSize.value_or(
+            std::numeric_limits<std::decay_t<decltype(*maxSize)>>::max()))
     {
         log<level::ERR>("Write data would make the total size exceed the max "
                         "size allowed. Return.");
+        bdata.resize(oldsize);
         return false;
     }
 
     commitState_ = CommitState::Dirty;
-    /* Copy (overwrite) the data */
-    if (needResize)
-    {
-        dataPtr->resize(offset + data.size()); // not enough space, extend
-    }
-    std::copy(data.begin(), data.end(), dataPtr->begin() + offset);
+    std::copy(data.begin(), data.end(), bdata.data() + offset);
     return true;
 }
 
@@ -359,22 +432,25 @@ bool BinaryStore::commit()
     }
 
     /* Store as little endian to be platform agnostic. Consistent with read. */
-    auto blobData = blob_.SerializeAsString();
-    boost::endian::little_uint64_t sizeLE = blobData.size();
-    std::string commitData(reinterpret_cast<const char*>(sizeLE.data()),
-                           sizeof(sizeLE));
-    commitData += blobData;
-
-    // This should never be true if it is blocked by the write command
-    if (maxSize && sizeof(commitData) > *maxSize)
+    auto msg = makeEncoder(baseBlobId_, blobs_);
+    auto outSize = payloadCalcSize(msg);
+    if (outSize >
+        maxSize.value_or(
+            std::numeric_limits<std::decay_t<decltype(*maxSize)>>::max()))
     {
         log<level::ERR>("Commit Data exceeded maximum allowed size");
         return false;
     }
-
+    std::string buf(outSize, '\0');
+    auto& size = *reinterpret_cast<boost::endian::little_uint64_t*>(buf.data());
+    auto ost = pb_ostream_from_buffer(reinterpret_cast<pb_byte_t*>(buf.data()) +
+                                          sizeof(size),
+                                      buf.size() - sizeof(size));
+    pb_encode(&ost, binstore_binaryblobproto_BinaryBlobBase_fields, &msg);
+    size = ost.bytes_written;
     try
     {
-        file_->writeStr(commitData, 0);
+        file_->writeStr(buf, 0);
     }
     catch (const std::exception& e)
     {
@@ -390,7 +466,7 @@ bool BinaryStore::commit()
 
 bool BinaryStore::close()
 {
-    currentBlob_ = nullptr;
+    currentBlob_.clear();
     writable_ = false;
     commitState_ = CommitState::Dirty;
     return true;
@@ -437,9 +513,9 @@ bool BinaryStore::stat(blobs::BlobMeta* meta)
     }
     blobState |= commitState_;
 
-    if (currentBlob_)
+    if (!currentBlob_.empty())
     {
-        meta->size = currentBlob_->data().size();
+        meta->size = blobs_.find(currentBlob_)->second.size();
     }
     else
     {
