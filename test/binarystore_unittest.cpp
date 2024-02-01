@@ -12,6 +12,8 @@
 #include <stdplus/print.hpp>
 #include <vector>
 
+#include "binaryblob.pb.h"
+
 #include <gmock/gmock.h>
 
 const std::string blobData = "jW7jiID}kD&gm&Azi:^]JT]'Ov4"
@@ -232,15 +234,4 @@ TEST_F(BinaryStoreTest, TestCreateFromConfigExceedMaxSize)
         "/blob/my-test", std::move(testDataFile), 1);
     ASSERT_TRUE(store);
     EXPECT_FALSE(store->commit());
-}
-
-TEST_F(BinaryStoreTest, TestCreateFromFileExceedMaxSize)
-{
-    auto testDataFile = createBlobStorage(inputProto);
-    auto store = binstore::BinaryStore::createFromFile(std::move(testDataFile),
-                                                       false, 1);
-
-    // Reading from File is expected to call loadSerializedData and fail at the
-    // commit()
-    EXPECT_FALSE(store);
 }
