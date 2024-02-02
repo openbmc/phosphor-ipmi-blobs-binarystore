@@ -11,5 +11,4 @@ message BinaryBlob {
 message BinaryBlobBase {
     optional string blob_base_id = 1; // Common parent path of contained blobs
     repeated BinaryBlob blobs = 2;
-    optional uint32 max_size_bytes = 3;
 }

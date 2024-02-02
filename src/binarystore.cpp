@@ -96,16 +96,6 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
              * and is a valid case to handle. Simply init an empty binstore. */
             commitState_ = CommitState::Uninitialized;
         }
-
-        // The new max size takes priority
-        if (maxSize)
-        {
-            blob_.set_max_size_bytes(*maxSize);
-        }
-        else
-        {
-            blob_.clear_max_size_bytes();
-        }
     }
     catch (const std::system_error& e)
     {

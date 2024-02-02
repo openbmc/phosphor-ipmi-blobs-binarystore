@@ -49,10 +49,6 @@ class BinaryStore : public BinaryStoreInterface
         file_(std::move(file)), maxSize(maxSize)
     {
         blob_.set_blob_base_id(baseBlobId_);
-        if (maxSize)
-        {
-            blob_.set_max_size_bytes(*maxSize);
-        }
     }
 
     BinaryStore(std::unique_ptr<SysFile> file, bool readOnly = false,
@@ -60,10 +56,6 @@ class BinaryStore : public BinaryStoreInterface
         readOnly_{readOnly},
         file_(std::move(file)), maxSize(maxSize)
     {
-        if (maxSize)
-        {
-            blob_.set_max_size_bytes(*maxSize);
-        }
     }
 
     ~BinaryStore() = default;
