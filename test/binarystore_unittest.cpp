@@ -37,13 +37,11 @@ const std::string inputProto = "blob_base_id: \"/blob/my-test\""
                                "    data:\"" +
                                blobData +
                                "\""
-                               "}] "
-                               "max_size_bytes: 64";
+                               "}]";
 const std::string smallInputProto = "blob_base_id: \"/s/test\""
                                     "blobs: [{ "
                                     "    blob_id: \"/s/test/0\""
-                                    "}] "
-                                    "max_size_bytes: 64";
+                                    "}]";
 
 class SysFileBuf : public binstore::SysFile
 {
@@ -216,15 +214,15 @@ TEST_F(BinaryStoreTest, TestWriteExceedMaxSize)
 
     EXPECT_TRUE(store->openOrCreateBlob(
         "/s/test/0", blobs::OpenFlags::write | blobs::OpenFlags::read));
-    // Current size 24(blob_ + max_size) + 8(size var) = 32
+    // Current size 22(blob_) + 8(size var) = 30
     EXPECT_TRUE(store->write(
-        0, writeData)); // 44 =  32(existing) + 10 (data) + 2 (blob_id '/0')
+        0, writeData)); // 42 =  30(existing) + 10 (data) + 2 (blob_id '/0')
     EXPECT_FALSE(
-        store->write(10, writeData)); // 54 = 44 (existing) + 10 (new data)
+        store->write(10, writeData)); // 52 = 42 (existing) + 10 (new data)
     EXPECT_FALSE(
-        store->write(5, writeData)); // 49 = 44 (existing) + 5 (new data)
+        store->write(7, writeData)); // 49 = 42 (existing) + 7 (new data)
     EXPECT_TRUE(
-        store->write(4, writeData)); // 48 = 44 (existing) + 4 (new data)
+        store->write(6, writeData)); // 48 = 42 (existing) + 6 (new data)
 }
 
 TEST_F(BinaryStoreTest, TestCreateFromConfigExceedMaxSize)
