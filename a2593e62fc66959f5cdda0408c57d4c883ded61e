@@ -22,6 +22,30 @@
       },
       "revId": "a2593e62fc66959f5cdda0408c57d4c883ded61e",
       "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b790f0ce_1f385ce4",
+        "filename": "include/binarystore.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000188
+      },
+      "writtenOn": "2024-02-08T03:40:13Z",
+      "side": 1,
+      "message": "It\u0027s nicer for blob listing to have it in order. It doesn\u0027t make a difference otherwise.",
+      "parentUuid": "e79cd15a_5295d76f",
+      "range": {
+        "startLine": 108,
+        "startChar": 9,
+        "endLine": 108,
+        "endChar": 12
+      },
+      "revId": "a2593e62fc66959f5cdda0408c57d4c883ded61e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
     }
   ]
 }
