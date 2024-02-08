@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1d8a0b4_976ee88f",
+        "filename": "src/binarystore.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2024-02-08T03:03:37Z",
+      "side": 0,
+      "message": "do we not need to check this anymore?",
+      "range": {
+        "startLine": 200,
+        "startChar": 24,
+        "endLine": 200,
+        "endChar": 59
+      },
+      "revId": "f102dd6a6e1162e802ac5a48dfc3f3153b72edc1",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e79cd15a_5295d76f",
+        "filename": "include/binarystore.hpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000885
+      },
+      "writtenOn": "2024-02-08T03:03:37Z",
+      "side": 1,
+      "message": "does it have to be ordered map?",
+      "range": {
+        "startLine": 108,
+        "startChar": 9,
+        "endLine": 108,
+        "endChar": 12
+      },
+      "revId": "a2593e62fc66959f5cdda0408c57d4c883ded61e",
+      "serverId": "adbd0a64-1f21-4d83-b585-671fe73cb6e4"
+    }
+  ]
+}
