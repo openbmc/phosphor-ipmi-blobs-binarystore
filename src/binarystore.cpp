@@ -119,8 +119,6 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
         return true;
     }
 
-    log<level::NOTICE>("Try loading blob from persistent data",
-                       entry("BASE_ID=%s", baseBlobId_.c_str()));
     std::string protoBlobId;
     static constexpr auto blobcb = [](pb_istream_t* stream,
                                       const pb_field_iter_t*,
@@ -295,7 +293,6 @@ bool BinaryStore::openOrCreateBlob(const std::string& blobId, uint16_t flags)
     blobs_.emplace(blobId, std::vector<std::uint8_t>{});
     currentBlob_ = blobId;
     commitState_ = CommitState::Dirty;
-    log<level::NOTICE>("Created new blob", entry("BLOB_ID=%s", blobId.c_str()));
     return true;
 }
 
