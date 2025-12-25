@@ -54,15 +54,15 @@ bool parseOptions(int argc, char* argv[], BlobToolConfig& cfg)
     cfg.programName = argv[0];
 
     struct option longOptions[] = {
-        {"help", no_argument, 0, 'h'},
-        {"list", no_argument, 0, 'l'},
-        {"read", no_argument, 0, 'r'},
-        {"migrate", no_argument, 0, 'm'},
-        {"config", required_argument, 0, 'c'},
-        {"binary-store", required_argument, 0, 's'},
-        {"blob", required_argument, 0, 'b'},
-        {"offset", required_argument, 0, 'g'},
-        {0, 0, 0, 0},
+        {"help", no_argument, nullptr, 'h'},
+        {"list", no_argument, nullptr, 'l'},
+        {"read", no_argument, nullptr, 'r'},
+        {"migrate", no_argument, nullptr, 'm'},
+        {"config", required_argument, nullptr, 'c'},
+        {"binary-store", required_argument, nullptr, 's'},
+        {"blob", required_argument, nullptr, 'b'},
+        {"offset", required_argument, nullptr, 'g'},
+        {nullptr, 0, nullptr, 0},
     };
 
     int optionIndex = 0;
