@@ -21,8 +21,7 @@ std::system_error errnoException(const std::string& message)
 } // namespace
 
 SysFileImpl::SysFileImpl(const std::string& path, std::optional<size_t> offset,
-                         const internal::Sys* sys) :
-    sys(sys)
+                         const internal::Sys* sys) : sys(sys)
 {
     fd_ = sys->open(path.c_str(), O_RDWR);
     offset_ = offset.value_or(0);

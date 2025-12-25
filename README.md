@@ -21,7 +21,7 @@ Despite its name, the binary blob store cannot be used for everything.
 ## Background and References
 
 Please read the IPMI Blob protocol design as primer
-[here](https://github.com/openbmc/phosphor-ipmi-blobs/blob/master/README.md).
+[primer](https://github.com/openbmc/phosphor-ipmi-blobs/blob/master/README.md).
 
 Under the hood, the binary blobs are stored as a binary
 [protocol buffer](https://github.com/protocolbuffers/protobuf), or "protobuf" in
