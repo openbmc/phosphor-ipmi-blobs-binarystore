@@ -44,15 +44,13 @@ class BinaryStore : public BinaryStoreInterface
     BinaryStore() = delete;
     BinaryStore(const std::string& baseBlobId, std::unique_ptr<SysFile> file,
                 std::optional<uint32_t> maxSize = std::nullopt) :
-        baseBlobId_(baseBlobId),
-        file_(std::move(file)), maxSize(maxSize)
+        baseBlobId_(baseBlobId), file_(std::move(file)), maxSize(maxSize)
     {
     }
 
     BinaryStore(std::unique_ptr<SysFile> file, bool readOnly = false,
                 std::optional<uint32_t> maxSize = std::nullopt) :
-        readOnly_{readOnly},
-        file_(std::move(file)), maxSize(maxSize)
+        readOnly_{readOnly}, file_(std::move(file)), maxSize(maxSize)
     {
     }
 
