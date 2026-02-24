@@ -48,12 +48,12 @@ A "blob id" is a unique string that identifies a blob. Binary Store handler may
 show two kinds of blob ids: "base id" and "file id". They should only contain
 ASCII alphanumerical characters and forward slashes ('/').
 
-A "base id" begins and ends with a forward slash. It is analagous to a unix
+A "base id" begins and ends with a forward slash. It is analogous to a unix
 directory path. The binary store handler will assign each storage location a
 unique base id (See next section for details).
 
 A "file id" begins with a forward slash but must not have a slash at the end,
-and is analagous to a unix file path. Any file id with a valid base id as its
+and is analogous to a unix file path. Any file id with a valid base id as its
 longest matching prefix is considered reserved as a binary blob in the storage
 space.
 

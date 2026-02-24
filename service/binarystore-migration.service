@@ -1,5 +1,5 @@
 [Unit]
-Description=Migrate Binary Stroage Data
+Description=Migrate Binary Storage Data
 
 [Service]
 Type=oneshot

@@ -76,7 +76,7 @@ class BinaryStoreInterface
     virtual std::vector<uint8_t> readBlob(const std::string& blobId) const = 0;
 
     /**
-     * Writes data to the currently openend blob.
+     * Writes data to the currently opened blob.
      * @param offset: offset into the blob to write
      * @param data: bytes to write
      * @returns True if able to write the entire data successfully
