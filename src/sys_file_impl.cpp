@@ -1,5 +1,7 @@
 #include "sys_file_impl.hpp"
 
+#include <sys/stat.h>
+
 #include <optional>
 #include <system_error>
 
@@ -21,12 +23,10 @@ std::system_error errnoException(const std::string& message)
 } // namespace
 
 SysFileImpl::SysFileImpl(const std::string& path, std::optional<size_t> offset,
-                         const internal::Sys* sys) : sys(sys)
+                         const internal::Sys* sys) :
+    path_(path), offset_(offset.value_or(0)), sys(sys)
 {
-    fd_ = sys->open(path.c_str(), O_RDWR);
-    offset_ = offset.value_or(0);
-
-    if (fd_ < 0)
+    if (!ensureValidFd())
     {
         throw errnoException("Error opening file "s + path);
     }
@@ -34,11 +34,19 @@ SysFileImpl::SysFileImpl(const std::string& path, std::optional<size_t> offset,
 
 SysFileImpl::~SysFileImpl()
 {
-    sys->close(fd_);
+    if (fd_ >= 0)
+    {
+        sys->close(fd_);
+    }
 }
 
 void SysFileImpl::lseek(size_t pos) const
 {
+    if (!ensureValidFd())
+    {
+        throw errnoException("Invalid file descriptor for "s + path_);
+    }
+
     if (sys->lseek(fd_, offset_ + pos, SEEK_SET) < 0)
     {
         throw errnoException("Cannot lseek to pos "s + std::to_string(pos));
@@ -47,7 +55,6 @@ void SysFileImpl::lseek(size_t pos) const
 
 size_t SysFileImpl::readToBuf(size_t pos, size_t count, char* buf) const
 {
-
     lseek(pos);
 
     size_t bytesRead = 0;
@@ -126,6 +133,31 @@ void SysFileImpl::writeStr(const std::string& data, size_t pos)
             "Tried to send data size "s + std::to_string(data.size()) +
             " but could only send "s + std::to_string(ret));
     }
+}
+
+bool SysFileImpl::ensureValidFd() const
+{
+    struct stat fd_stat, file_stat;
+
+    if (fd_ >= 0 && fstat(fd_, &fd_stat) == 0 &&
+        stat(path_.c_str(), &file_stat) == 0)
+    {
+        if (fd_stat.st_dev == file_stat.st_dev &&
+            fd_stat.st_ino == file_stat.st_ino)
+        {
+            return true;
+        }
+        throw std::runtime_error("fd is dead");
+    }
+
+    if (fd_ >= 0)
+    {
+        sys->close(fd_);
+        fd_ = -1;
+    }
+
+    fd_ = sys->open(path_.c_str(), O_RDWR);
+    return fd_ >= 0;
 }
 
 } // namespace binstore

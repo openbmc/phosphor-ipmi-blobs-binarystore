@@ -166,12 +166,14 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
         /* Read causes unexpected system-level failure */
         log<level::ERR>("Reading from sysfile failed",
                         entry("ERROR=%s", e.what()));
+        blobs_.clear();
         return false;
     }
     catch (const std::exception& e)
     {
         /* Non system error originates from junk value in 'size' */
         commitState_ = CommitState::Uninitialized;
+        blobs_.clear();
     }
 
     if (commitState_ == CommitState::Uninitialized)
