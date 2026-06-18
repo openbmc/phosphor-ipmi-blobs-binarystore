@@ -34,6 +34,16 @@ ssize_t SysImpl::write(int fd, const void* buf, size_t count) const
     return ::write(fd, buf, count);
 }
 
+int SysImpl::fstat(int fd, struct stat* buf) const
+{
+    return ::fstat(fd, buf);
+}
+
+int SysImpl::stat(const char* pathname, struct stat* buf) const
+{
+    return ::stat(pathname, buf);
+}
+
 SysImpl sys_impl;
 
 } // namespace internal

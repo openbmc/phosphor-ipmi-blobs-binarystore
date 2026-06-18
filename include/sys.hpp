@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sys/stat.h>
 #include <unistd.h>
 
 namespace binstore
@@ -22,6 +23,8 @@ class Sys
     virtual off_t lseek(int fd, off_t offset, int whence) const = 0;
     virtual ssize_t read(int fd, void* buf, size_t count) const = 0;
     virtual ssize_t write(int fd, const void* buf, size_t count) const = 0;
+    virtual int fstat(int fd, struct stat* buf) const = 0;
+    virtual int stat(const char* pathname, struct stat* buf) const = 0;
 };
 
 /** @class SysImpl
@@ -36,6 +39,8 @@ class SysImpl : public Sys
     off_t lseek(int fd, off_t offset, int whence) const override;
     ssize_t read(int fd, void* buf, size_t count) const override;
     ssize_t write(int fd, const void* buf, size_t count) const override;
+    int fstat(int fd, struct stat* buf) const override;
+    int stat(const char* pathname, struct stat* buf) const override;
 };
 
 /** @brief Default instantiation of sys */

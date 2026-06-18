@@ -17,6 +17,8 @@ class SysMock : public internal::Sys
     MOCK_CONST_METHOD3(lseek, off_t(int, off_t, int));
     MOCK_CONST_METHOD3(read, ssize_t(int, void*, size_t));
     MOCK_CONST_METHOD3(write, ssize_t(int, const void*, size_t));
+    MOCK_CONST_METHOD2(fstat, int(int, struct stat*));
+    MOCK_CONST_METHOD2(stat, int(const char*, struct stat*));
 };
 
 } // namespace internal

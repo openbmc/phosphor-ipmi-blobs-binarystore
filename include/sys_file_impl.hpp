@@ -36,7 +36,10 @@ class SysFileImpl : public SysFile
     void writeStr(const std::string& data, size_t pos) override;
 
   private:
-    int fd_;
+    bool ensureValidFd() const;
+
+    std::string path_;
+    mutable int fd_ = -1;
     size_t offset_;
     void lseek(size_t pos) const;
     const internal::Sys* sys;

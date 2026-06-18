@@ -12,9 +12,11 @@ using namespace binstore;
 using namespace std::string_literals;
 
 using ::testing::_;
+using ::testing::DoAll;
 using ::testing::IsEmpty;
 using ::testing::NotNull;
 using ::testing::Return;
+using ::testing::SetArgPointee;
 using ::testing::SetErrnoAndReturn;
 using ::testing::StrEq;
 using ::testing::WithArgs;
@@ -31,9 +33,17 @@ class SysFileTest : public ::testing::Test
   protected:
     SysFileTest()
     {
+        struct stat dummyStat{};
+        dummyStat.st_dev = 1;
+        dummyStat.st_ino = 100;
+
         EXPECT_CALL(sys, open(StrEq(sysFileTestPath), O_RDWR))
             .WillOnce(Return(sysFileTestFd));
         EXPECT_CALL(sys, close(sysFileTestFd));
+        EXPECT_CALL(sys, fstat(sysFileTestFd, _))
+            .WillRepeatedly(DoAll(SetArgPointee<1>(dummyStat), Return(0)));
+        EXPECT_CALL(sys, stat(StrEq(sysFileTestPath), _))
+            .WillRepeatedly(DoAll(SetArgPointee<1>(dummyStat), Return(0)));
 
         file = std::make_unique<SysFileImpl>(sysFileTestPath, sysFileTestOffset,
                                              &sys);
