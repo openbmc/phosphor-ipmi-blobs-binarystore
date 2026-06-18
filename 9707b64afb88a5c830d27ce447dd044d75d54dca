@@ -1,0 +1,8 @@
+Code-Review+2: Willy Tu <wltu@google.com>
+Code-Review+1: Name of user not set #1003040
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Thu, 18 Jun 2026 18:15:54 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs-binarystore/+/91450
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
