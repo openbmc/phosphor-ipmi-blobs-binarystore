@@ -34,10 +34,9 @@ class SysFileImpl : public SysFile
     std::string readAsStr(size_t pos, size_t count) const override;
     std::string readRemainingAsStr(size_t pos) const override;
     void writeStr(const std::string& data, size_t pos) override;
+    bool reopen() const override;
 
   private:
-    bool ensureValidFd() const;
-
     std::string path_;
     mutable int fd_ = -1;
     size_t offset_;
