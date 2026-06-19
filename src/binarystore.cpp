@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <blobs-ipmid/blobs.hpp>
 #include <boost/endian/arithmetic.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <ipmid/handler.hpp>
 #include <map>
@@ -109,7 +110,8 @@ static pb_callback_t pbStrEncoder(const T& t) noexcept
     return {{.encode = pbEncodeStr<T>}, const_cast<T*>(&t)};
 }
 
-bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
+bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId,
+                                     bool retry)
 {
     /* Load blob from sysfile if we know it might not match what we have.
      * Note it will overwrite existing unsaved data per design. */
@@ -167,6 +169,10 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
         log<level::ERR>("Reading from sysfile failed",
                         entry("ERROR=%s", e.what()));
         blobs_.clear();
+        if (retry && file_->reopen())
+        {
+            return loadSerializedData(aliasBlobBaseId, /*retry=*/false);
+        }
         return false;
     }
     catch (const std::exception& e)
@@ -447,17 +453,29 @@ bool BinaryStore::commit()
                                       buf.size() - sizeof(size));
     pb_encode(&ost, binstore_binaryblobproto_BinaryBlobBase_fields, &msg);
     size = ost.bytes_written;
-    try
+
+    bool retry = true;
+    for (size_t attempt = 0; attempt < 2; ++attempt)
     {
-        file_->writeStr(buf, 0);
+        try
+        {
+            file_->writeStr(buf, 0);
+            break;
+        }
+        catch (const std::exception& e)
+        {
+            if (retry && file_->reopen())
+            {
+                retry = false;
+                continue;
+            }
+
+            commitState_ = CommitState::CommitError;
+            log<level::ERR>("Writing to sysfile failed",
+                            entry("ERROR=%s", e.what()));
+            return false;
+        };
     }
-    catch (const std::exception& e)
-    {
-        commitState_ = CommitState::CommitError;
-        log<level::ERR>("Writing to sysfile failed",
-                        entry("ERROR=%s", e.what()));
-        return false;
-    };
 
     commitState_ = CommitState::Clean;
     return true;

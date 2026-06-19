@@ -24,9 +24,10 @@ std::system_error errnoException(const std::string& message)
 
 SysFileImpl::SysFileImpl(const std::string& path, std::optional<size_t> offset,
                          const internal::Sys* sys) :
-    path_(path), offset_(offset.value_or(0)), sys(sys)
+    path_(path), fd_(sys->open(path_.c_str(), O_RDWR)),
+    offset_(offset.value_or(0)), sys(sys)
 {
-    if (!ensureValidFd())
+    if (fd_ < 0)
     {
         throw errnoException("Error opening file "s + path);
     }
@@ -42,11 +43,6 @@ SysFileImpl::~SysFileImpl()
 
 void SysFileImpl::lseek(size_t pos) const
 {
-    if (!ensureValidFd())
-    {
-        throw errnoException("Invalid file descriptor for "s + path_);
-    }
-
     if (sys->lseek(fd_, offset_ + pos, SEEK_SET) < 0)
     {
         throw errnoException("Cannot lseek to pos "s + std::to_string(pos));
@@ -135,20 +131,8 @@ void SysFileImpl::writeStr(const std::string& data, size_t pos)
     }
 }
 
-bool SysFileImpl::ensureValidFd() const
+bool SysFileImpl::reopen() const
 {
-    struct stat fd_stat, file_stat;
-
-    if (fd_ >= 0 && sys->fstat(fd_, &fd_stat) == 0 &&
-        sys->stat(path_.c_str(), &file_stat) == 0)
-    {
-        if (fd_stat.st_dev == file_stat.st_dev &&
-            fd_stat.st_ino == file_stat.st_ino)
-        {
-            return true;
-        }
-    }
-
     if (fd_ >= 0)
     {
         sys->close(fd_);

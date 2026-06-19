@@ -63,6 +63,11 @@ class FakeSysFile : public SysFile
         data_.insert(data_.begin() + pos, data.begin(), data.end());
     }
 
+    bool reopen() const override
+    {
+        return true;
+    }
+
   protected:
     std::string data_ = ""s;
 };

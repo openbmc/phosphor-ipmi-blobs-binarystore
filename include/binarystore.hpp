@@ -101,7 +101,8 @@ class BinaryStore : public BinaryStoreInterface
     /* Load the serialized data from sysfile if commit state is dirty.
      * Returns False if encountered error when loading */
     bool loadSerializedData(
-        std::optional<std::string> aliasBlobBaseId = std::nullopt);
+        std::optional<std::string> aliasBlobBaseId = std::nullopt,
+        bool retry = true);
 
     std::map<std::string, std::vector<std::uint8_t>> blobs_;
     std::string baseBlobId_, currentBlob_;
