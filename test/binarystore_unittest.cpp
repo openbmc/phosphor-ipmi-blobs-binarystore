@@ -74,6 +74,11 @@ class SysFileBuf : public binstore::SysFile
         data_->replace(pos, data.size(), data);
     }
 
+    bool reopen() const override
+    {
+        return true;
+    }
+
     std::string* data_;
 };
 

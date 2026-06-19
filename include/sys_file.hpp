@@ -56,6 +56,12 @@ class SysFile
      *         not all of the bytes can be written
      */
     virtual void writeStr(const std::string& data, size_t pos) = 0;
+
+    /**
+     * @brief Reopens the file
+     * @returns true on success, false otherwise.
+     */
+    virtual bool reopen() const = 0;
 };
 
 } // namespace binstore
