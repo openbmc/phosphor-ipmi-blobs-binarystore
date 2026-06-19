@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <blobs-ipmid/blobs.hpp>
 #include <boost/endian/arithmetic.hpp>
+#include <cstddef>
 #include <cstdint>
 #include <ipmid/handler.hpp>
 #include <map>
@@ -139,41 +140,55 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
         return true;
     };
 
-    try
+    bool retry = true;
+    for (size_t i = 0; i < 2; i++)
     {
-        /* Parse length-prefixed format to protobuf */
-        boost::endian::little_uint64_t size = 0;
-        file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
-        auto proto = file_->readAsStr(sizeof(size), size);
-
-        auto ist = pb_istream_from_buffer(
-            reinterpret_cast<const pb_byte_t*>(proto.data()), proto.size());
-        binstore_binaryblobproto_BinaryBlobBase msg = {
-            .blob_base_id = pbStrDecoder(protoBlobId),
-            .blobs = {{.decode = blobcb}, &blobs_},
-        };
-        blobs_.clear(); // Purge old contents before new append during decode
-        if (!pb_decode(&ist, binstore_binaryblobproto_BinaryBlobBase_fields,
-                       &msg))
+        try
         {
-            /* Fail to parse the data, which might mean no preexsiting blobs
-             * and is a valid case to handle. Simply init an empty binstore. */
-            commitState_ = CommitState::Uninitialized;
+            /* Parse length-prefixed format to protobuf */
+            boost::endian::little_uint64_t size = 0;
+            file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
+            auto proto = file_->readAsStr(sizeof(size), size);
+
+            auto ist = pb_istream_from_buffer(
+                reinterpret_cast<const pb_byte_t*>(proto.data()), proto.size());
+            binstore_binaryblobproto_BinaryBlobBase msg = {
+                .blob_base_id = pbStrDecoder(protoBlobId),
+                .blobs = {{.decode = blobcb}, &blobs_},
+            };
+            blobs_
+                .clear(); // Purge old contents before new append during decode
+            if (!pb_decode(&ist, binstore_binaryblobproto_BinaryBlobBase_fields,
+                           &msg))
+            {
+                /* Fail to parse the data, which might mean no preexsiting blobs
+                 * and is a valid case to handle. Simply init an empty binstore.
+                 */
+                commitState_ = CommitState::Uninitialized;
+            }
+            break;
         }
-    }
-    catch (const std::system_error& e)
-    {
-        /* Read causes unexpected system-level failure */
-        log<level::ERR>("Reading from sysfile failed",
-                        entry("ERROR=%s", e.what()));
-        blobs_.clear();
-        return false;
-    }
-    catch (const std::exception& e)
-    {
-        /* Non system error originates from junk value in 'size' */
-        commitState_ = CommitState::Uninitialized;
-        blobs_.clear();
+        catch (const std::system_error& e)
+        {
+            /* Read causes unexpected system-level failure */
+            if (retry && file_->reopen())
+            {
+                retry = false;
+                continue;
+            }
+
+            log<level::ERR>("Reading from sysfile failed",
+                            entry("ERROR=%s", e.what()));
+            blobs_.clear();
+            return false;
+        }
+        catch (const std::exception& e)
+        {
+            /* Non system error originates from junk value in 'size' */
+            commitState_ = CommitState::Uninitialized;
+            blobs_.clear();
+            break;
+        }
     }
 
     if (commitState_ == CommitState::Uninitialized)
@@ -447,17 +462,29 @@ bool BinaryStore::commit()
                                       buf.size() - sizeof(size));
     pb_encode(&ost, binstore_binaryblobproto_BinaryBlobBase_fields, &msg);
     size = ost.bytes_written;
-    try
+
+    bool retry = true;
+    for (size_t attempt = 0; attempt < 2; ++attempt)
     {
-        file_->writeStr(buf, 0);
+        try
+        {
+            file_->writeStr(buf, 0);
+            break;
+        }
+        catch (const std::exception& e)
+        {
+            if (retry && file_->reopen())
+            {
+                retry = false;
+                continue;
+            }
+
+            commitState_ = CommitState::CommitError;
+            log<level::ERR>("Writing to sysfile failed",
+                            entry("ERROR=%s", e.what()));
+            return false;
+        };
     }
-    catch (const std::exception& e)
-    {
-        commitState_ = CommitState::CommitError;
-        log<level::ERR>("Writing to sysfile failed",
-                        entry("ERROR=%s", e.what()));
-        return false;
-    };
 
     commitState_ = CommitState::Clean;
     return true;
