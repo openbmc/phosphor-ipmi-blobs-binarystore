@@ -1,0 +1,8 @@
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Code-Review+2: William A. Kennington III <wak@google.com>
+Code-Review+2: Willy Tu <wltu@google.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Tue, 23 Jun 2026 20:17:40 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs-binarystore/+/91461
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
