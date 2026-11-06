@@ -178,7 +178,7 @@ Not supported.
 
 #### Read existing data
 
-1. `BmcBlobGetCount` followed by `BmcBlobEnumrate` shows `/bmc_store/` and
+1. `BmcBlobGetCount` followed by `BmcBlobEnumerate` shows `/bmc_store/` and
    `/bmc_store/blob0`.
 1. `BmcBlobStat` on `/bmc_store/blob0` shows non-zero size and `COMMITTED`
    state.
