@@ -148,7 +148,30 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
             /* Parse length-prefixed format to protobuf */
             boost::endian::little_uint64_t size = 0;
             file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
-            auto proto = file_->readAsStr(sizeof(size), size);
+
+            constexpr uint32_t defaultMaxSize = 1024 * 1024;
+            const uint64_t limit = maxSize.value_or(defaultMaxSize);
+            if (size > limit)
+            {
+                log<level::WARNING>(
+                    "Stored data size exceeds maximum allowed size",
+                    entry("SIZE=0x%llx",
+                          static_cast<unsigned long long>(size.value())),
+                    entry("MAX_SIZE=0x%llx",
+                          static_cast<unsigned long long>(limit)));
+                commitState_ = CommitState::Uninitialized;
+                blobs_.clear();
+                break;
+            }
+
+            auto proto = file_->readAsStr(sizeof(size),
+                                          static_cast<size_t>(size.value()));
+            if (proto.size() != size)
+            {
+                commitState_ = CommitState::Uninitialized;
+                blobs_.clear();
+                break;
+            }
 
             auto ist = pb_istream_from_buffer(
                 reinterpret_cast<const pb_byte_t*>(proto.data()), proto.size());
