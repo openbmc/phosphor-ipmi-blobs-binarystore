@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <ipmid/handler.hpp>
+#include <limits>
 #include <map>
 #include <memory>
 #include <optional>
@@ -148,7 +149,36 @@ bool BinaryStore::loadSerializedData(std::optional<std::string> aliasBlobBaseId)
             /* Parse length-prefixed format to protobuf */
             boost::endian::little_uint64_t size = 0;
             file_->readToBuf(0, sizeof(size), reinterpret_cast<char*>(&size));
-            auto proto = file_->readAsStr(sizeof(size), size);
+
+            uint64_t maxDataSize = std::string().max_size();
+            if (maxSize.has_value())
+            {
+                maxDataSize = std::min<uint64_t>(
+                    maxDataSize, maxSize.value() > sizeof(size)
+                                     ? maxSize.value() - sizeof(size)
+                                     : 0);
+            }
+            if (size > maxDataSize)
+            {
+                log<level::WARNING>(
+                    "Stored data size exceeds maximum allowed size",
+                    entry("SIZE=0x%llx",
+                          static_cast<unsigned long long>(size.value())),
+                    entry("MAX_SIZE=0x%llx",
+                          static_cast<unsigned long long>(maxDataSize)));
+                commitState_ = CommitState::Uninitialized;
+                blobs_.clear();
+                break;
+            }
+
+            auto proto = file_->readAsStr(sizeof(size),
+                                          static_cast<size_t>(size.value()));
+            if (proto.size() != size)
+            {
+                commitState_ = CommitState::Uninitialized;
+                blobs_.clear();
+                break;
+            }
 
             auto ist = pb_istream_from_buffer(
                 reinterpret_cast<const pb_byte_t*>(proto.data()), proto.size());

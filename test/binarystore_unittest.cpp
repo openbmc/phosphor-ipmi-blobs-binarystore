@@ -4,6 +4,7 @@
 
 #include <google/protobuf/text_format.h>
 
+#include <boost/endian/arithmetic.hpp>
 #include <iostream>
 #include <ipmid/handler.hpp>
 #include <iterator>
@@ -60,6 +61,7 @@ class SysFileBuf : public binstore::SysFile
 
     std::string readAsStr(size_t pos, size_t count) const override
     {
+        ++readAsStrCalls;
         stdplus::print(stderr, "Read as str {} bytes at {}\n", count, pos);
         return data_->substr(pos, count);
     }
@@ -80,6 +82,7 @@ class SysFileBuf : public binstore::SysFile
     }
 
     std::string* data_;
+    mutable size_t readAsStrCalls = 0;
 };
 
 using binstore::binaryblobproto::BinaryBlobBase;
@@ -239,4 +242,49 @@ TEST_F(BinaryStoreTest, TestCreateFromConfigExceedMaxSize)
         "/blob/my-test", std::move(testDataFile), 1);
     ASSERT_TRUE(store);
     EXPECT_FALSE(store->commit());
+}
+
+TEST_F(BinaryStoreTest, TestLoadJunkSizeExceedMaxSizeDoesNotReadPayload)
+{
+    // Non-0xff garbage header whose lower 32 bits (0x24edf0ff, ~591 MiB) fit
+    // within 32-bit std::string::max_size() if truncated to 32-bit size_t.
+    boost::endian::little_uint64_t junkSize = 0x34eefb5024edf0ffULL;
+    blobDataStorage.assign(reinterpret_cast<const char*>(junkSize.data()),
+                           sizeof(junkSize));
+    blobDataStorage.resize(512, '\xaa');
+
+    auto testDataFile = std::make_unique<SysFileBuf>(&blobDataStorage);
+    auto* rawFile = testDataFile.get();
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/skm/hss-backup/", std::move(testDataFile), 512);
+    ASSERT_TRUE(store);
+    EXPECT_EQ(rawFile->readAsStrCalls, 0U);
+    EXPECT_THAT(store->getBlobIds(), UnorderedElementsAre("/skm/hss-backup/"));
+
+    const std::vector<uint8_t> seedData = {1, 2, 3, 4};
+    ASSERT_TRUE(store->openOrCreateBlob(
+        "/skm/hss-backup/0", blobs::OpenFlags::read | blobs::OpenFlags::write));
+    EXPECT_TRUE(store->write(0, seedData));
+    EXPECT_TRUE(store->commit());
+    EXPECT_TRUE(store->close());
+
+    auto reloaded = binstore::BinaryStore::createFromConfig(
+        "/skm/hss-backup/", std::make_unique<SysFileBuf>(&blobDataStorage),
+        512);
+    ASSERT_TRUE(reloaded);
+    EXPECT_THAT(reloaded->readBlob("/skm/hss-backup/0"),
+                ElementsAreArray(seedData));
+}
+
+TEST_F(BinaryStoreTest, TestLoadTruncatedPayloadMarksUninitialized)
+{
+    boost::endian::little_uint64_t claimedSize = 1024;
+    blobDataStorage.assign(reinterpret_cast<const char*>(claimedSize.data()),
+                           sizeof(claimedSize));
+    blobDataStorage.append(16, '\x55');
+
+    auto store = binstore::BinaryStore::createFromConfig(
+        "/blob/my-test/", std::make_unique<SysFileBuf>(&blobDataStorage));
+    ASSERT_TRUE(store);
+    EXPECT_THAT(store->getBlobIds(), UnorderedElementsAre("/blob/my-test/"));
 }

@@ -2,6 +2,7 @@
 
 #include <sys/stat.h>
 
+#include <algorithm>
 #include <optional>
 #include <system_error>
 
@@ -90,9 +91,32 @@ std::string SysFileImpl::readAsStr(size_t pos, size_t count) const
         return result;
     }
 
-    result.resize(count);
-    size_t bytesRead = readToBuf(pos, count, result.data());
-    result.resize(bytesRead);
+    lseek(pos);
+
+    size_t totalBytesRead = 0;
+    while (totalBytesRead < count)
+    {
+        size_t toRead = std::min(count - totalBytesRead, rwBlockSize);
+        result.resize(totalBytesRead + toRead);
+
+        ssize_t ret = sys->read(fd_, &result[totalBytesRead], toRead);
+        if (ret < 0)
+        {
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            throw errnoException("Error reading from file"s);
+        }
+        if (ret == 0)
+        {
+            break;
+        }
+        totalBytesRead += static_cast<size_t>(ret);
+    }
+
+    result.resize(totalBytesRead);
     return result;
 }
 
