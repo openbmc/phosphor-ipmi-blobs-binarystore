@@ -14,6 +14,7 @@ using namespace std::string_literals;
 using ::testing::_;
 using ::testing::DoAll;
 using ::testing::IsEmpty;
+using ::testing::Le;
 using ::testing::NotNull;
 using ::testing::Return;
 using ::testing::SetArgPointee;
@@ -96,6 +97,17 @@ TEST_F(SysFileTest, ReadMoreThanAvailable)
         .WillOnce(Return(0));
 
     EXPECT_EQ(sysFileTestStr, file->readAsStr(0, sysFileTestBuf.size() + 1024));
+}
+
+TEST_F(SysFileTest, ReadLargeCountStopsAtEofWithoutFullAllocation)
+{
+    constexpr size_t hugeCount = 512ULL * 1024 * 1024;
+    EXPECT_CALL(sys, lseek(sysFileTestFd, 0, SEEK_SET));
+    EXPECT_CALL(sys, read(sysFileTestFd, NotNull(), Le(8192U)))
+        .WillOnce(WithArgs<1, 2>(BufSet(sysFileTestBuf)))
+        .WillOnce(Return(0));
+
+    EXPECT_EQ(sysFileTestStr, file->readAsStr(0, hugeCount));
 }
 
 TEST_F(SysFileTest, ReadAtOffset)
