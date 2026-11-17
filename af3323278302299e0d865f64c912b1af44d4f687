@@ -1,0 +1,8 @@
+Code-Review+2: Willy Tu <wltu@google.com>
+Code-Review+2: Nan Zhou <nanzhoumails@gmail.com>
+Verified+1: OpenBMC CI <openbmcbump-ci@yahoo.com>
+Submitted-by: Willy Tu <wltu@google.com>
+Submitted-at: Tue, 17 Nov 2026 19:35:34 +0000
+Reviewed-on: https://gerrit.openbmc.org/c/openbmc/phosphor-ipmi-blobs-binarystore/+/97313
+Project: openbmc/phosphor-ipmi-blobs-binarystore
+Branch: refs/heads/master
